@@ -1,5 +1,7 @@
 # Orbmacs
 
+![O R B](https://github.com/kvvba/orbmacs/blob/ed9e8d190ea64375a8bc5af083aae321d57975c7/logo/orb.png?raw=true)
+
 Orbmacs is my relatively simple emacs init file, so called because of the dashboard image. It is my personal evolution of Witchmacs, and will be continually updated with changes I make.
 I would encourage you to create your own fork of this repository, as not all changes may be to your liking.
 
