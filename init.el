@@ -123,7 +123,7 @@
 (global-set-key (kbd "C-c a") 'org-agenda)
 
 ;; Set default alarm sound for end of timer
-(setq org-clock-sound "~/.emacs.d/digital_alarm.wav")
+(setq org-clock-sound "~/.emacs.d/media/digital_alarm.wav")
 
 ;; Set default font to hack
 ;; (set-frame-font "Hack Nerd Font Mono 10" nil t)
@@ -171,6 +171,9 @@
 (global-set-key (kbd "<s-C-return>") 'eshell-other-window)
 
 (require 'cl-lib)
+
+;; Octave
+(setq octave-comment-char ?%)
 
 ;; Packages
 
@@ -317,7 +320,7 @@
   (add-to-list 'dashboard-items '(agenda) t)
   (setq deashboard-week-agenda t)
   (setq dashboard-banner-logo-title "O R B M A C S")
-  (setq dashboard-startup-banner "~/.emacs.d/logo/orb.png")
+  (setq dashboard-startup-banner "~/.emacs.d/media/orb.png")
   (setq dashboard-center-content t)
   ;; (setq dashboard-show-shortcuts nil)
   (setq dashboard-set-footer nil)
