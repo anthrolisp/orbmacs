@@ -295,7 +295,7 @@
   ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config))
 
-(load-theme 'doom-solarized-light)
+(load-theme 'doom-solarized-dark)
 
 ;; (use-package nix-mode
 ;;   :mode "\\.nix\\'")
