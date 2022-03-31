@@ -172,6 +172,8 @@
 
 (require 'cl-lib)
 
+(setq inferior-lisp-program "sbcl")
+
 ;; Octave
 (setq octave-comment-char ?%)
 
@@ -183,6 +185,16 @@
 	'(lambda ()
 	   (visual-line-mode 1)))
 (setq org-pretty-entities t)
+
+(defun org-summary-todo (n-done n-not-done)
+  "Switch entry to DONE when all subentries are done, to TODO otherwise."
+  (let (org-log-done org-log-states)   ; turn off logging
+    (org-todo (if (= n-not-done 0) "DONE" "TODO"))))
+
+(add-hook 'org-after-todo-statistics-hook 'org-summary-todo)
+
+(use-package slime
+  :ensure t)
 
 (use-package org-journal
   :ensure t
@@ -315,7 +327,7 @@
     (lisp-interaction-mode))
   :config
   (dashboard-setup-startup-hook)
-  (setq dashboard-items '((recents . 5)
+  (setq dashboard-items '((recents . 9)
 						  (bookmarks . 5)))
   (add-to-list 'dashboard-items '(agenda) t)
   (setq deashboard-week-agenda t)
@@ -328,3 +340,16 @@
   (setq dashboard-init-info (format "%d packages loaded in %s"
                                     (length package-activated-list) (emacs-init-time))))
 
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(slime which-key use-package undo-tree switch-window powerline page-break-lines org-roam org-journal neotree magit htmlize flycheck doom-themes diminish dashboard counsel company beacon avy async)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
