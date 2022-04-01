@@ -118,9 +118,9 @@
 ;; Diable default startup screen
 (setq inhibit-startup-message t)
 
-;; Set default directory for org agenda
 (setq org-agenda-files '("~/org"))
 (global-set-key (kbd "C-c a") 'org-agenda)
+(setq recentf-excluse '("~/org"))
 
 ;; Set default alarm sound for end of timer
 (setq org-clock-sound "~/.emacs.d/media/digital_alarm.wav")
@@ -195,6 +195,15 @@
 
 (use-package slime
   :ensure t)
+
+(use-package rust-mode
+  :ensure t
+  :config
+  (add-hook 'rust-mode-hook
+			(lambda () (setq indent-tabs-mode nil)))
+  (setq rust-format-on-save t)
+  (add-hook 'rust-mode-hook
+          (lambda () (prettify-symbols-mode))))
 
 (use-package org-journal
   :ensure t
@@ -346,7 +355,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(slime which-key use-package undo-tree switch-window powerline page-break-lines org-roam org-journal neotree magit htmlize flycheck doom-themes diminish dashboard counsel company beacon avy async)))
+   '(rust-mode slime which-key use-package undo-tree switch-window powerline page-break-lines org-roam org-journal neotree magit htmlize flycheck doom-themes diminish dashboard counsel company beacon avy async)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
