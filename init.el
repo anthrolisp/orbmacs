@@ -2,8 +2,7 @@
 (require 'package)
 (setq package-archives nil)
 (add-to-list 'package-archives
-        '("melpa" . "https://melpa.org/packages/"))
-(add-to-list 'package-archives
+        '("melpa" . "https://melpa.org/packages/")
 		'("gnu" . "https://elpa.gnu.org/packages/"))
 
 (setq package-enable-at-startup nil)
@@ -65,7 +64,7 @@
 (setq backward-delete-char-untabify-method 'nil)
 
 ;; Enable prettify symbols
-(global-prettify-symbols-mode t)
+;; (global-prettify-symbols-mode t)
 
 ;; Enable bracket pair-matching
 (setq electric-pair-pairs '(
@@ -196,14 +195,92 @@
 (use-package slime
   :ensure t)
 
-(use-package rust-mode
+(setq lsp-rust-server 'rust-analyzer)
+
+(use-package all-the-icons
+  :ensure t
+  :if (display-graphic-p))
+
+(use-package rustic
+  :ensure t
+  :bind (:map rustic-mode-map
+              ("M-j" . lsp-ui-imenu)
+              ("M-?" . lsp-find-references)
+              ("C-c C-c l" . flycheck-list-errors)
+              ("C-c C-c a" . lsp-execute-code-action)
+              ("C-c C-c r" . lsp-rename)
+              ("C-c C-c q" . lsp-workspace-restart)
+              ("C-c C-c Q" . lsp-workspace-shutdown)
+              ("C-c C-c s" . lsp-rust-analyzer-status))
+  :config
+  ;; uncomment for less flashiness
+  ;; (setq lsp-eldoc-hook nil)
+  ;; (setq lsp-enable-symbol-highlighting nil)
+  ;; (setq lsp-signature-auto-activate nil)
+
+  ;; comment to disable rustfmt on save
+  (setq rustic-format-on-save t)
+  (add-hook 'rustic-mode-hook 'rk/rustic-mode-hook))
+
+(defun rk/rustic-mode-hook ()
+  ;; so that run C-c C-c C-r works without having to confirm, but don't try to
+  ;; save rust buffers that are not file visiting. Once
+  ;; https://github.com/brotzeit/rustic/issues/253 has been resolved this should
+  ;; no longer be necessary.
+  (when buffer-file-name
+    (setq-local buffer-save-without-query t)))
+
+(use-package lsp-mode
+  :ensure t
+  :commands lsp
+  :custom
+  ;; what to use when checking on-save. "check" is default, I prefer clippy
+  ;; (lsp-rust-analyzer-cargo-watch-command "clippy")
+  (lsp-eldoc-render-all t)
+  (lsp-idle-delay 0.6)
+  ;; enable / disable the hints as you prefer:
+  (lsp-rust-analyzer-server-display-inlay-hints t)
+  (lsp-rust-analyzer-display-lifetime-elision-hints-enable "skip_trivial")
+  (lsp-rust-analyzer-display-chaining-hints t)
+  (lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names nil)
+  (lsp-rust-analyzer-display-closure-return-type-hints t)
+  (lsp-rust-analyzer-display-parameter-hints nil)
+  (lsp-rust-analyzer-display-reborrow-hints nil)
+  :config
+  (add-hook 'lsp-mode-hook 'lsp-ui-mode)
+  :hook
+  ((python-mode . lsp)))
+
+(use-package lsp-ui
+  :ensure t
+  :commands lsp-ui-mode
+  :custom
+  (lsp-ui-peek-always-show t)
+  (lsp-ui-sideline-show-hover t)
+  (lsp-ui-doc-enable nil))
+
+(use-package lsp-ivy
+  :ensure t)
+
+(use-package company
+  :ensure t
+  :custom
+  (company-idle-delay 0.5) ;; how long to wait until popup
+  ;; (company-begin-commands nil) ;; uncomment to disable popup
+  (global-company-mode t)
+  :bind
+  (:map company-active-map
+	      ("C-n". company-select-next)
+	      ("C-p". company-select-previous)
+	      ("M-<". company-select-first)
+	      ("M->". company-select-last)))
+
+(use-package yasnippet
   :ensure t
   :config
-  (add-hook 'rust-mode-hook
-			(lambda () (setq indent-tabs-mode nil)))
-  (setq rust-format-on-save t)
-  (add-hook 'rust-mode-hook
-          (lambda () (prettify-symbols-mode))))
+  (yas-reload-all)
+  (add-hook 'prog-mode-hook 'yas-minor-mode)
+  (add-hook 'text-mode-hook 'yas-minor-mode))
 
 (use-package org-journal
   :ensure t
@@ -245,7 +322,7 @@
 (use-package neotree
   :ensure t)
 (global-set-key [f8] 'neotree-toggle)
-(setq neo-theme 'arrow)
+(setq neo-theme (if (display-graphic-p) 'icons 'arrow))
 
 (use-package htmlize
   :ensure t)
@@ -348,14 +425,13 @@
   (setq dashboard-set-init-info t)
   (setq dashboard-init-info (format "%d packages loaded in %s"
                                     (length package-activated-list) (emacs-init-time))))
-
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(rust-mode slime which-key use-package undo-tree switch-window powerline page-break-lines org-roam org-journal neotree magit htmlize flycheck doom-themes diminish dashboard counsel company beacon avy async)))
+   '(lsp-ivy all-the-icons yasnippet which-key use-package undo-tree switch-window slime rustic powerline page-break-lines org-roam org-journal neotree magit lsp-ui htmlize flycheck doom-themes diminish dashboard counsel company beacon avy async)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
