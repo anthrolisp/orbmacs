@@ -125,7 +125,7 @@
 (setq org-clock-sound "~/.emacs.d/media/digital_alarm.wav")
 
 ;; Set default font to hack
-;; (set-frame-font "Hack Nerd Font Mono 10" nil t)
+(set-frame-font "Hack Nerd Font Mono 10" nil t)
 
 ;; Aliases
 (defalias 'open 'find-file-other-window)
@@ -137,14 +137,14 @@
 	  (lambda nil
 		(concat
 		 (if (string= (eshell/pwd) (getenv "HOME"))
-			 (propertize "~" 'face `(:foreground "#99CCFF"))
+			 (propertize "~" 'face `(:foreground "#268bd2"))
 		   (replace-regexp-in-string
 			(getenv "HOME")
-			(propertize "~" 'face `(:foreground "#99CCFF"))
-			(propertize (eshell/pwd) 'face `(:foreground "#99CCFF"))))
+			(propertize "~" 'face `(:foreground "#268bd2"))
+			(propertize (eshell/pwd) 'face `(:foreground "#268bd2"))))
 		 (if (= (user-uid) 0)
-			 (propertize " α " 'face `(:foreground "#FF6666"))
-		   (propertize " λ " 'face `(:foreground "#A6E22E"))))))
+			 (propertize " α " 'face `(:foreground "#d33682"))
+		   (propertize " λ " 'face `(:foreground "#d33682"))))))
 
 (setq eshell-highlight-prompt nil)
 
@@ -185,50 +185,24 @@
 	   (visual-line-mode 1)))
 (setq org-pretty-entities t)
 
-(defun org-summary-todo (n-done n-not-done)
-  "Switch entry to DONE when all subentries are done, to TODO otherwise."
-  (let (org-log-done org-log-states)   ; turn off logging
-    (org-todo (if (= n-not-done 0) "DONE" "TODO"))))
-
 (add-hook 'org-after-todo-statistics-hook 'org-summary-todo)
+
+(use-package svg-tag-mode
+  :ensure t)
 
 (use-package slime
   :ensure t)
+
+(use-package slime-company
+  :after (slime company)
+  :config (setq slime-company-completion 'fuzzy
+                slime-company-after-completion 'slime-company-just-one-space))
 
 (setq lsp-rust-server 'rust-analyzer)
 
 (use-package all-the-icons
   :ensure t
   :if (display-graphic-p))
-
-(use-package rustic
-  :ensure t
-  :bind (:map rustic-mode-map
-              ("M-j" . lsp-ui-imenu)
-              ("M-?" . lsp-find-references)
-              ("C-c C-c l" . flycheck-list-errors)
-              ("C-c C-c a" . lsp-execute-code-action)
-              ("C-c C-c r" . lsp-rename)
-              ("C-c C-c q" . lsp-workspace-restart)
-              ("C-c C-c Q" . lsp-workspace-shutdown)
-              ("C-c C-c s" . lsp-rust-analyzer-status))
-  :config
-  ;; uncomment for less flashiness
-  ;; (setq lsp-eldoc-hook nil)
-  ;; (setq lsp-enable-symbol-highlighting nil)
-  ;; (setq lsp-signature-auto-activate nil)
-
-  ;; comment to disable rustfmt on save
-  (setq rustic-format-on-save t)
-  (add-hook 'rustic-mode-hook 'rk/rustic-mode-hook))
-
-(defun rk/rustic-mode-hook ()
-  ;; so that run C-c C-c C-r works without having to confirm, but don't try to
-  ;; save rust buffers that are not file visiting. Once
-  ;; https://github.com/brotzeit/rustic/issues/253 has been resolved this should
-  ;; no longer be necessary.
-  (when buffer-file-name
-    (setq-local buffer-save-without-query t)))
 
 (use-package lsp-mode
   :ensure t
@@ -247,9 +221,7 @@
   (lsp-rust-analyzer-display-parameter-hints nil)
   (lsp-rust-analyzer-display-reborrow-hints nil)
   :config
-  (add-hook 'lsp-mode-hook 'lsp-ui-mode)
-  :hook
-  ((python-mode . lsp)))
+  (add-hook 'lsp-mode-hook 'lsp-ui-mode))
 
 (use-package lsp-ui
   :ensure t
@@ -393,7 +365,7 @@
   ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config))
 
-(load-theme 'doom-solarized-dark)
+(load-theme 'doom-solarized-light)
 
 ;; (use-package nix-mode
 ;;   :mode "\\.nix\\'")
