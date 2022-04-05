@@ -123,6 +123,9 @@
 
 ;; Set default alarm sound for end of timer
 (setq org-clock-sound "~/.emacs.d/media/digital_alarm.wav")
+(global-set-key (kbd "C-c t s") 'org-timer-set-timer)
+(global-set-key (kbd "C-c t k") 'org-timer-stop)
+(global-set-key (kbd "C-c t p") 'org-timer-pause-or-continue)
 
 ;; Set default font to hack
 (set-frame-font "Hack Nerd Font Mono 10" nil t)
@@ -190,6 +193,11 @@
 (use-package svg-tag-mode
   :ensure t)
 
+(use-package vterm
+  :ensure t
+  :config
+  (setq vterm-timer-delay 0.01))
+
 (use-package slime
   :ensure t)
 
@@ -208,8 +216,6 @@
   :ensure t
   :commands lsp
   :custom
-  ;; what to use when checking on-save. "check" is default, I prefer clippy
-  ;; (lsp-rust-analyzer-cargo-watch-command "clippy")
   (lsp-eldoc-render-all t)
   (lsp-idle-delay 0.6)
   ;; enable / disable the hints as you prefer:
@@ -290,11 +296,6 @@
   :ensure t
   :init
   (counsel-mode 1))
-
-(use-package neotree
-  :ensure t)
-(global-set-key [f8] 'neotree-toggle)
-(setq neo-theme (if (display-graphic-p) 'icons 'arrow))
 
 (use-package htmlize
   :ensure t)
@@ -397,16 +398,3 @@
   (setq dashboard-set-init-info t)
   (setq dashboard-init-info (format "%d packages loaded in %s"
                                     (length package-activated-list) (emacs-init-time))))
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(lsp-ivy all-the-icons yasnippet which-key use-package undo-tree switch-window slime rustic powerline page-break-lines org-roam org-journal neotree magit lsp-ui htmlize flycheck doom-themes diminish dashboard counsel company beacon avy async)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
