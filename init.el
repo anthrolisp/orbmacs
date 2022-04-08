@@ -56,8 +56,8 @@
 ;; (setq ring-bell-function 'ignore)
 
 ;; Indentation
-(setq-default tab-width 4)
-(setq-default standard-indent 4)
+(setq-default tab-width 2)
+(setq-default standard-indent 2)
 (setq c-basic-offset tab-width)
 (setq-default electric-indent-inhibit t)
 (setq-default indent-tabs-mode t)
@@ -120,6 +120,8 @@
 (setq org-agenda-files '("~/org"))
 (global-set-key (kbd "C-c a") 'org-agenda)
 (setq recentf-excluse '("~/org"))
+(setq org-todo-keywords
+	  '((sequence "TODO" "PROG" "|" "DONE")))
 
 ;; Set default alarm sound for end of timer
 (setq org-clock-sound "~/.emacs.d/media/digital_alarm.wav")
@@ -128,7 +130,7 @@
 (global-set-key (kbd "C-c t p") 'org-timer-pause-or-continue)
 
 ;; Set default font to hack
-(set-frame-font "Hack Nerd Font Mono 10" nil t)
+(setq default-frame-alist '((font . "Hack Nerd Font Mono-10")))
 
 ;; Aliases
 (defalias 'open 'find-file-other-window)
@@ -178,6 +180,7 @@
 
 ;; Octave
 (setq octave-comment-char ?%)
+(add-to-list 'auto-mode-alist '("\\.m\\'" . octave-mode))
 
 ;; Packages
 
@@ -305,7 +308,8 @@
 
 (use-package which-key
   :ensure t
-  :diminish which-key-mode)
+  :init
+  (which-key-mode))
 
 (use-package swiper
   :ensure t
@@ -366,7 +370,7 @@
   ;; Corrects (and improves) org-mode's native fontification.
   (doom-themes-org-config))
 
-(load-theme 'doom-solarized-light)
+;; (load-theme 'doom-solarized-light)
 
 ;; (use-package nix-mode
 ;;   :mode "\\.nix\\'")
@@ -398,3 +402,17 @@
   (setq dashboard-set-init-info t)
   (setq dashboard-init-info (format "%d packages loaded in %s"
                                     (length package-activated-list) (emacs-init-time))))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-enabled-themes '(doom-oceanic-next))
+ '(package-selected-packages
+   '(yasnippet which-key vterm use-package undo-tree switch-window slime rustic powerline page-break-lines org-roam org-journal neotree magit lsp-ui lsp-ivy htmlize flycheck doom-themes diminish dashboard counsel company beacon avy async all-the-icons)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
