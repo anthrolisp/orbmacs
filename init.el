@@ -117,7 +117,7 @@
 ;; Diable default startup screen
 (setq inhibit-startup-message t)
 
-(setq org-agenda-files '("~/org"))
+(setq org-agenda-files (directory-files-recursively "~/org/" "\\.org$"))
 (global-set-key (kbd "C-c a") 'org-agenda)
 (setq recentf-excluse '("~/org"))
 (setq org-todo-keywords
@@ -173,6 +173,9 @@
 	(switch-to-buffer-other-window "*eshell*")))
 
 (global-set-key (kbd "<s-C-return>") 'eshell-other-window)
+(global-set-key (kbd "C-c e") 'eshell)
+
+(global-set-key (kbd "C-c v") 'vterm)
 
 (require 'cl-lib)
 
@@ -192,6 +195,9 @@
 (setq org-pretty-entities t)
 
 (add-hook 'org-after-todo-statistics-hook 'org-summary-todo)
+
+(load "~/.emacs.d/mail.el")
+(global-set-key (kbd "C-c m" 'mu4e))
 
 (use-package svg-tag-mode
   :ensure t)
@@ -409,7 +415,7 @@
  ;; If there is more than one, they won't work right.
  '(custom-enabled-themes '(doom-oceanic-next))
  '(package-selected-packages
-   '(yasnippet which-key vterm use-package undo-tree switch-window slime rustic powerline page-break-lines org-roam org-journal neotree magit lsp-ui lsp-ivy htmlize flycheck doom-themes diminish dashboard counsel company beacon avy async all-the-icons)))
+	 '(mu4e yasnippet which-key vterm use-package undo-tree switch-window slime rustic powerline page-break-lines org-roam org-journal neotree magit lsp-ui lsp-ivy htmlize flycheck doom-themes diminish dashboard counsel company beacon avy async all-the-icons)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
