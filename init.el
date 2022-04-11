@@ -117,11 +117,13 @@
 ;; Diable default startup screen
 (setq inhibit-startup-message t)
 
-(setq org-agenda-files (directory-files-recursively "~/org/" "\\.org$"))
+(setq org-agenda-files '("~/org/inbox.org"
+												 "~/org/corkboard.org"
+												 "~/org/reminders.org"))
 (global-set-key (kbd "C-c a") 'org-agenda)
 (setq recentf-excluse '("~/org"))
 (setq org-todo-keywords
-	  '((sequence "TODO" "PROG" "|" "DONE")))
+	  '((sequence "TODO" "PROG" "|" "DONE" "CANC")))
 
 ;; Set default alarm sound for end of timer
 (setq org-clock-sound "~/.emacs.d/media/digital_alarm.wav")
@@ -193,11 +195,23 @@
 	'(lambda ()
 	   (visual-line-mode 1)))
 (setq org-pretty-entities t)
-
 (add-hook 'org-after-todo-statistics-hook 'org-summary-todo)
+(global-set-key (kbd "C-c c") 'org-capture)
 
 (load "~/.emacs.d/mail.el")
-(global-set-key (kbd "C-c m" 'mu4e))
+
+(setq org-capture-templates '(("t" "Todo [inbox]" entry
+															 (file+headline "~/org/inbox.org" "Tasks")
+															 "* TODO %i%?")
+															("T" "Reminder" entry
+															 (file+headline "~/org/reminders.org" "Reminders")
+															 "* %i%? \n %U")))
+(global-set-key (kbd "C-c m") 'mu4e)
+
+(setq org-refile-targets '(("~/org/reminders.org" :maxlevel . 2)
+													 ("~/org/someday.org" :level . 1)
+													 ("~/org/corkboard.org" :maxlevel . 3)))
+;; (global-set-key (kbd "C-c C-w") 'org-refile)
 
 (use-package svg-tag-mode
   :ensure t)
@@ -408,17 +422,3 @@
   (setq dashboard-set-init-info t)
   (setq dashboard-init-info (format "%d packages loaded in %s"
                                     (length package-activated-list) (emacs-init-time))))
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(custom-enabled-themes '(doom-oceanic-next))
- '(package-selected-packages
-	 '(mu4e yasnippet which-key vterm use-package undo-tree switch-window slime rustic powerline page-break-lines org-roam org-journal neotree magit lsp-ui lsp-ivy htmlize flycheck doom-themes diminish dashboard counsel company beacon avy async all-the-icons)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
