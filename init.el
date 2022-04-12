@@ -119,9 +119,11 @@
 
 (setq org-agenda-files '("~/org/inbox.org"
 												 "~/org/corkboard.org"
-												 "~/org/reminders.org"))
+												 "~/org/reminders.org"
+												 "~/org/timetable.org"))
 (global-set-key (kbd "C-c a") 'org-agenda)
-(setq recentf-excluse '("~/org"))
+(setq recentf-exclude '("\\.org\\"))
+
 (setq org-todo-keywords
 	  '((sequence "TODO" "PROG" "|" "DONE" "CANC")))
 
@@ -198,20 +200,30 @@
 (add-hook 'org-after-todo-statistics-hook 'org-summary-todo)
 (global-set-key (kbd "C-c c") 'org-capture)
 
-(load "~/.emacs.d/mail.el")
-
 (setq org-capture-templates '(("t" "Todo [inbox]" entry
 															 (file+headline "~/org/inbox.org" "Tasks")
 															 "* TODO %i%?")
-															("T" "Reminder" entry
+															("r" "Reminder" entry
 															 (file+headline "~/org/reminders.org" "Reminders")
-															 "* %i%? \n %U")))
+															 "* %i%?\n%U")
+															("m" "Meeting minutes" entry
+															 (file+headline "~/org/meetings.org" "Meeting notes")
+															 "* Meeting title: %(read-string \"Meeting title: \")\nAttending: Jakub Cranmer, %(read-string \"Attendees: \")\nTime: %U\n\n%i%?")))
+
 (global-set-key (kbd "C-c m") 'mu4e)
 
 (setq org-refile-targets '(("~/org/reminders.org" :maxlevel . 2)
 													 ("~/org/someday.org" :level . 1)
 													 ("~/org/corkboard.org" :maxlevel . 3)))
-;; (global-set-key (kbd "C-c C-w") 'org-refile)
+
+(load "~/.emacs.d/mail.el")
+
+(load "~/.emacs.d/music.el")
+(add-hook 'dired-mode-hook
+					(lambda ()
+						(cond ((string= dired-directory "~/Music/")
+									 (bongo-dired-library-mode))
+									(t "default"))))
 
 (use-package svg-tag-mode
   :ensure t)
@@ -410,8 +422,8 @@
     (lisp-interaction-mode))
   :config
   (dashboard-setup-startup-hook)
-  (setq dashboard-items '((recents . 9)
-						  (bookmarks . 5)))
+  (setq dashboard-items '((recents . 5)
+						  (bookmarks . 9)))
   (add-to-list 'dashboard-items '(agenda) t)
   (setq deashboard-week-agenda t)
   (setq dashboard-banner-logo-title "O R B M A C S")
@@ -422,3 +434,15 @@
   (setq dashboard-set-init-info t)
   (setq dashboard-init-info (format "%d packages loaded in %s"
                                     (length package-activated-list) (emacs-init-time))))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-enabled-themes '(doom-solarized-light)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
