@@ -114,12 +114,14 @@
 ;; Defer loading most packages for quicker startup
 (setq use-package-always-defer t)
 
+(setq use-package-always-ensure t)
+
 ;; Diable default startup screen
 (setq inhibit-startup-message t)
 
-(setq org-agenda-files '("~/org/inbox.org"
-												 "~/org/corkboard.org"
-												 "~/org/reminders.org"
+(setq org-agenda-files '("~/org/gtd/inbox.org"
+												 "~/org/gtd/corkboard.org"
+												 "~/org/gtd/reminders.org"
 												 "~/org/timetable.org"))
 (global-set-key (kbd "C-c a") 'org-agenda)
 (setq recentf-exclude '("\\.org\\"))
@@ -158,7 +160,7 @@
 (setq eshell-highlight-prompt nil)
 
 (defun eshell/sudo-open (filename)
-  "Open a file as root in Eshell."
+  "Open a file (FILENAME) as root in Eshell."
   (let ((qual-filename (if (string-match "^/" filename)
 						   filename
 						 (concat (expand-file-name (eshell/pwd)) "/" filename))))
@@ -201,40 +203,44 @@
 (global-set-key (kbd "C-c c") 'org-capture)
 
 (setq org-capture-templates '(("t" "Todo [inbox]" entry
-															 (file+headline "~/org/inbox.org" "Tasks")
+															 (file+headline "~/org/gtd/inbox.org" "Tasks")
 															 "* TODO %i%?")
 															("r" "Reminder" entry
-															 (file+headline "~/org/reminders.org" "Reminders")
+															 (file+headline "~/org/gtd/reminders.org" "Reminders")
 															 "* %i%?\n%U")
 															("m" "Meeting minutes" entry
 															 (file+headline "~/org/meetings.org" "Meeting notes")
 															 "* Meeting title: %(read-string \"Meeting title: \")\nAttending: Jakub Cranmer, %(read-string \"Attendees: \")\nTime: %U\n\n%i%?")))
 
-(global-set-key (kbd "C-c m") 'mu4e)
-
-(setq org-refile-targets '(("~/org/reminders.org" :maxlevel . 2)
-													 ("~/org/someday.org" :level . 1)
-													 ("~/org/corkboard.org" :maxlevel . 3)))
+(setq org-refile-targets '(("~/org/gtd/reminders.org" :maxlevel . 2)
+													 ("~/org/gtd/someday.org" :level . 1)
+													 ("~/org/gtd/corkboard.org" :maxlevel . 3)))
 
 (load "~/.emacs.d/mail.el")
 
-(load "~/.emacs.d/music.el")
-(add-hook 'dired-mode-hook
-					(lambda ()
-						(cond ((string= dired-directory "~/Music/")
-									 (bongo-dired-library-mode))
-									(t "default"))))
+(use-package mu4e-alert
+	:config
+	(mu4e-alert-set-default-style 'libnotify)
+	(add-hook 'after-init-hook #'mu4e-alert-enable-notifications)
+	:hook
+	(after-init . mu4e-alert-enable-mode-line-display))
 
-(use-package svg-tag-mode
-  :ensure t)
+(load "~/.emacs.d/music.el")
+
+(defun kill-dired-buffers ()
+	(interactive)
+	(mapc (lambda (buffer) 
+          (when (eq 'dired-mode (buffer-local-value 'major-mode buffer)) 
+            (kill-buffer buffer))) 
+        (buffer-list)))
+
+(use-package svg-tag-mode)
 
 (use-package vterm
-  :ensure t
   :config
   (setq vterm-timer-delay 0.01))
 
-(use-package slime
-  :ensure t)
+(use-package slime)
 
 (use-package slime-company
   :after (slime company)
@@ -244,11 +250,9 @@
 (setq lsp-rust-server 'rust-analyzer)
 
 (use-package all-the-icons
-  :ensure t
   :if (display-graphic-p))
 
 (use-package lsp-mode
-  :ensure t
   :commands lsp
   :custom
   (lsp-eldoc-render-all t)
@@ -265,18 +269,15 @@
   (add-hook 'lsp-mode-hook 'lsp-ui-mode))
 
 (use-package lsp-ui
-  :ensure t
   :commands lsp-ui-mode
   :custom
   (lsp-ui-peek-always-show t)
   (lsp-ui-sideline-show-hover t)
   (lsp-ui-doc-enable nil))
 
-(use-package lsp-ivy
-  :ensure t)
+(use-package lsp-ivy)
 
 (use-package company
-  :ensure t
   :custom
   (company-idle-delay 0.5) ;; how long to wait until popup
   ;; (company-begin-commands nil) ;; uncomment to disable popup
@@ -289,14 +290,12 @@
 	      ("M->". company-select-last)))
 
 (use-package yasnippet
-  :ensure t
   :config
   (yas-reload-all)
   (add-hook 'prog-mode-hook 'yas-minor-mode)
   (add-hook 'text-mode-hook 'yas-minor-mode))
 
 (use-package org-journal
-  :ensure t
   :defer t
   :bind (("C-c C-j" . org-journal-new-entry))
   :config
@@ -304,7 +303,6 @@
         org-journal-date-format "%A, %d %B %Y"))
 
 (use-package org-roam
-  :ensure t
   :init
   (setq org-roam-v2-ack t)
   :custom
@@ -319,7 +317,6 @@
   (org-roam-setup))
 
 (use-package ivy
-  :ensure t
   :init
   (ivy-mode 1)
   :config
@@ -328,38 +325,30 @@
   (setq ivy-initial-inputs-alist nil))
 
 (use-package counsel
-  :ensure t
   :init
   (counsel-mode 1))
 
-(use-package htmlize
-  :ensure t)
+(use-package htmlize)
 
-(use-package diminish
-  :ensure t)
+(use-package diminish)
 
 (use-package which-key
-  :ensure t
   :init
   (which-key-mode))
 
 (use-package swiper
-  :ensure t
   :bind ("C-s" . 'swiper))
 
 (use-package beacon
-  :ensure t
   :diminish beacon-mode
   :init
   (beacon-mode 1))
 
 (use-package avy
-  :ensure t
   :bind
   ("M-s" . avy-goto-char))
 
 (use-package switch-window
-  :ensure t
   :config
   (setq switch-window-input-style 'minibuffer)
   (setq switch-window-increase 4)
@@ -371,25 +360,19 @@
   ([remap other-window] . switch-window))
 
 (use-package async
-  :ensure t
   :init
   (dired-async-mode 1))
 
 (use-package page-break-lines
-  :ensure t
   :diminish (page-break-lines-mode visual-line-mode))
 
 (use-package undo-tree
-  :ensure t
   :diminish undo-tree-mode)
 
-(use-package magit
-  :ensure t)
+(use-package magit)
 
 (use-package eldoc
   :diminish eldoc-mode)
-
-(setq custom-safe-themes t)
 
 (use-package doom-themes
   :ensure t
@@ -400,19 +383,28 @@
   ;; Enable flashing mode-line on errors
   (doom-themes-visual-bell-config)
   ;; Corrects (and improves) org-mode's native fontification.
-  (doom-themes-org-config))
+  (doom-themes-org-config)
+	:init
+	(setq custom-safe-themes t)
+	(load-theme 'doom-solarized-light))
 
-;; (load-theme 'doom-solarized-light)
+(use-package moody
+  :init
+  (setq x-underline-at-descent-line t)
+  (moody-replace-mode-line-buffer-identification)
+  (moody-replace-vc-mode)
+  (moody-replace-eldoc-minibuffer-message-function))
+
+(use-package minions
+	:init (minions-mode 1))
 
 ;; (use-package nix-mode
 ;;   :mode "\\.nix\\'")
 
 (use-package flycheck
-  :ensure t
   :init (global-flycheck-mode))
 
 (use-package dashboard
-  :ensure t
   :defer nil
   :preface
   (defun create-scratch-buffer ()
@@ -434,15 +426,3 @@
   (setq dashboard-set-init-info t)
   (setq dashboard-init-info (format "%d packages loaded in %s"
                                     (length package-activated-list) (emacs-init-time))))
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(custom-enabled-themes '(doom-solarized-light)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )

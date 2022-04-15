@@ -112,7 +112,7 @@ the currently-playing track."
   (defun prot/bongo-playlist-insert-playlist-file ()
     "Insert contents of playlist file to a `bongo' playlist.
 Upon insertion, playback starts immediately, in accordance with
-`prot/bongo-play-random'.
+`jakub/bongo-play-playlist'.
 
 The available options at the completion prompt point to files
 that hold filesystem paths of media items.  Think of them as
@@ -138,38 +138,12 @@ Also see `prot/bongo-dired-make-playlist-file'."
         (user-error "Not in a `bongo' playlist buffer"))))
 
 ;;; Bongo + Dired (bongo library buffer)
-  (defmacro prot/bongo-dired-library (name doc val)
-    "Create `bongo' library function NAME with DOC and VAL."
-    `(defun ,name ()
-       ,doc
-       (when (string-match-p "\\`~/Music/" default-directory)
-         (bongo-dired-library-mode ,val))))
 
-  (prot/bongo-dired-library
-   prot/bongo-dired-library-enable
-   "Set `bongo-dired-library-mode' when accessing ~/Music.
-
-Add this to `dired-mode-hook'.  Upon activation, the directory
-and all its sub-directories become a valid library buffer for
-Bongo, from where we can, among others, add tracks to playlists.
-The added benefit is that Dired will continue to behave as
-normal, making this a superior alternative to a purpose-specific
-library buffer.
-
-Note, though, that this will interfere with `wdired-mode'.  See
-`prot/bongo-dired-library-disable'."
-   1)
-
-  ;; NOTE `prot/bongo-dired-library-enable' does not get reactivated
-  ;; upon exiting `wdired-mode'.
-  ;;
-  ;; TODO reactivate bongo dired library upon wdired exit
-  (prot/bongo-dired-library
-   prot/bongo-dired-library-disable
-   "Unset `bongo-dired-library-mode' when accessing ~/Music.
-This should be added `wdired-mode-hook'.  For more, refer to
-`prot/bongo-dired-library-enable'."
-   -1)
+	(add-hook 'dired-mode-hook
+					(lambda ()
+						(cond ((string-match-p "^~\/Music\/.*$" dired-directory)
+									 (bongo-dired-library-mode))
+									(t "default"))))
 
   (defun prot/bongo-dired-insert-files ()
     "Add files in a `dired' buffer to the `bongo' playlist."
@@ -257,8 +231,6 @@ Also see `prot/bongo-playlist-insert-playlist-file'."
         (save-buffer)
         (kill-buffer))))
 
-  :hook ((dired-mode-hook . prot/bongo-dired-library-enable)
-         (wdired-mode-hook . prot/bongo-dired-library-disable))
   :bind (("<C-XF86AudioPlay>" . bongo-pause/resume)
          ("<C-XF86AudioNext>" . bongo-next)
          ("<C-XF86AudioPrev>" . bongo-previous)
