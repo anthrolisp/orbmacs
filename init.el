@@ -1,17 +1,26 @@
-;; Initialize melpa repo
-(require 'package)
-(setq package-archives nil)
-(add-to-list 'package-archives
-        '("melpa" . "https://melpa.org/packages/")
-		'("gnu" . "https://elpa.gnu.org/packages/"))
+;; <leaf-install-code>
+(eval-and-compile
+  (customize-set-variable
+   'package-archives '(("org" . "https://orgmode.org/elpa/")
+		       ("melpa" . "https://melpa.org/packages/")
+		       ("gnu" . "https://elpa.gnu.org/packages/")))
+  (package-initialize)
+  (unless (package-installed-p 'leaf)
+    (package-refresh-contents)
+    (package-install 'leaf))
 
-(setq package-enable-at-startup nil)
-(package-initialize)
+  (leaf leaf-keywords
+    :ensure t
+    :init
+    ;; optional packages if you want to use :hydra, :el-get, :blackout,,,
+    (leaf hydra :ensure t)
+    (leaf el-get :ensure t)
+    (leaf blackout :ensure t)
 
-;; Initialize use-package
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
+    :config
+    ;; initialize leaf-keywords.el
+    (leaf-keywords-init)))
+;; </leaf-install-code>
 
 ;; Make emacs startup faster
 (setq gc-cons-threshold 402653184
@@ -110,11 +119,6 @@
 
 ;; Make [/] and [%] include *all* subtasks recusively
 ;; (setq org-hierarchical-todo-statistics nil)
-
-;; Defer loading most packages for quicker startup
-(setq use-package-always-defer t)
-
-(setq use-package-always-ensure t)
 
 ;; Diable default startup screen
 (setq inhibit-startup-message t)
@@ -218,7 +222,8 @@
 
 (load "~/.emacs.d/mail.el")
 
-(use-package mu4e-alert
+(leaf mu4e-alert
+	:ensure t
 	:config
 	(mu4e-alert-set-default-style 'libnotify)
 	(add-hook 'after-init-hook #'mu4e-alert-enable-notifications)
@@ -234,89 +239,93 @@
             (kill-buffer buffer))) 
         (buffer-list)))
 
-(use-package svg-tag-mode)
+(leaf svg-tag-mode)
 
-(use-package vterm
+(leaf vterm
+	:ensure t
   :config
   (setq vterm-timer-delay 0.01))
 
-(use-package slime)
+(leaf slime
+	:ensure t)
 
-(use-package slime-company
+(leaf slime-company
+	:ensure t
   :after (slime company)
   :config (setq slime-company-completion 'fuzzy
                 slime-company-after-completion 'slime-company-just-one-space))
 
-(setq lsp-rust-server 'rust-analyzer)
-
-(use-package all-the-icons
+(leaf all-the-icons
+	:ensure t
   :if (display-graphic-p))
 
-(use-package lsp-mode
+(leaf lsp-mode
+	:ensure t
   :commands lsp
   :custom
-  (lsp-eldoc-render-all t)
-  (lsp-idle-delay 0.6)
+  (lsp-eldoc-render-all . t)
+  (lsp-idle-delay . 0.6)
   ;; enable / disable the hints as you prefer:
-  (lsp-rust-analyzer-server-display-inlay-hints t)
-  (lsp-rust-analyzer-display-lifetime-elision-hints-enable "skip_trivial")
-  (lsp-rust-analyzer-display-chaining-hints t)
-  (lsp-rust-analyzer-display-lifetime-elision-hints-use-parameter-names nil)
-  (lsp-rust-analyzer-display-closure-return-type-hints t)
-  (lsp-rust-analyzer-display-parameter-hints nil)
-  (lsp-rust-analyzer-display-reborrow-hints nil)
-  :config
-  (add-hook 'lsp-mode-hook 'lsp-ui-mode))
+  :hook
+  (lsp-mode-hook . lsp-ui-mode))
 
-(use-package lsp-ui
+(leaf lsp-ui
+	:ensure t
   :commands lsp-ui-mode
   :custom
-  (lsp-ui-peek-always-show t)
-  (lsp-ui-sideline-show-hover t)
-  (lsp-ui-doc-enable nil))
+  (lsp-ui-peek-always-show . t)
+  (lsp-ui-sideline-show-hover . t)
+  (lsp-ui-doc-enable . nil))
 
-(use-package lsp-ivy)
+(leaf lsp-ivy
+	:ensure t)
 
-(use-package company
+(leaf company
+	:ensure t
   :custom
-  (company-idle-delay 0.5) ;; how long to wait until popup
+  (company-idle-delay . 0.5) ;; how long to wait until popup
   ;; (company-begin-commands nil) ;; uncomment to disable popup
-  (global-company-mode t)
-  :bind
-  (:map company-active-map
-	      ("C-n". company-select-next)
-	      ("C-p". company-select-previous)
-	      ("M-<". company-select-first)
-	      ("M->". company-select-last)))
+  (global-company-mode . t)
+  :bind company-active-map
+	      ("C-n" . company-select-next)
+	      ("C-p" . company-select-previous)
+	      ("M-<" . company-select-first)
+	      ("M->" . company-select-last))
 
-(use-package yasnippet
-  :config
-  (yas-reload-all)
-  (add-hook 'prog-mode-hook 'yas-minor-mode)
-  (add-hook 'text-mode-hook 'yas-minor-mode))
+(leaf yasnippet
+	:ensure t
+	:hook
+  (prog-mode-hook . yas-minor-mode)
+  (text-mode-hook . yas-minor-mode))
 
-(use-package org-journal
-  :defer t
+(leaf org-journal
+	:ensure t
+  :leaf-defer t
   :bind (("C-c C-j" . org-journal-new-entry))
   :config
   (setq org-journal-dir "~/org/journal/"
         org-journal-date-format "%A, %d %B %Y"))
 
-(use-package org-roam
-  :init
-  (setq org-roam-v2-ack t)
+(leaf org-roam
+  :ensure t
   :custom
-  (org-roam-directory "~/RoamNotes")
-  (org-roam-completion-everywhere t)
+  (org-roam-directory . "~/org/")
   :bind (("C-c n l" . org-roam-buffer-toggle)
-		 ("C-c n f" . org-roam-node-find)
-		 ("C-c n i" . org-roam-node-insert)
-		 :map org-mode-map
-		 ("C-M-i" . completion-at-point))
+         ("C-c n f" . org-roam-node-find)
+         ("C-c n g" . org-roam-graph)
+         ("C-c n i" . org-roam-node-insert)
+         ("C-c n c" . org-roam-capture)
+         ;; Dailies
+         ("C-c n j" . org-roam-dailies-capture-today))
   :config
-  (org-roam-setup))
+  ;; If you're using a vertical completion framework, you might want a more informative completion interface
+  (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
+  (org-roam-db-autosync-mode)
+  ;; If using org-roam-protocol
+  (require 'org-roam-protocol))
 
-(use-package ivy
+(leaf ivy
+	:ensure t
   :init
   (ivy-mode 1)
   :config
@@ -324,31 +333,39 @@
   (setq ivy-count-format "(%d/%d) ")
   (setq ivy-initial-inputs-alist nil))
 
-(use-package counsel
+(leaf counsel
+	:ensure t
   :init
   (counsel-mode 1))
 
-(use-package htmlize)
+(leaf htmlize
+	:ensure t)
 
-(use-package diminish)
+(leaf diminish
+	:ensure t)
 
-(use-package which-key
+(leaf which-key
+	:ensure t
   :init
   (which-key-mode))
 
-(use-package swiper
+(leaf swiper
+	:ensure t
   :bind ("C-s" . 'swiper))
 
-(use-package beacon
+(leaf beacon
+	:ensure t
   :diminish beacon-mode
   :init
   (beacon-mode 1))
 
-(use-package avy
+(leaf avy
+	:ensure t
   :bind
   ("M-s" . avy-goto-char))
 
-(use-package switch-window
+(leaf switch-window
+	:ensure t
   :config
   (setq switch-window-input-style 'minibuffer)
   (setq switch-window-increase 4)
@@ -359,22 +376,27 @@
   :bind
   ([remap other-window] . switch-window))
 
-(use-package async
+(leaf async
+	:ensure t
   :init
   (dired-async-mode 1))
 
-(use-package page-break-lines
+(leaf page-break-lines
+	:ensure t
   :diminish (page-break-lines-mode visual-line-mode))
 
-(use-package undo-tree
+(leaf undo-tree
+	:ensure t
   :diminish undo-tree-mode)
 
-(use-package magit)
+(leaf magit
+	:ensure t)
 
-(use-package eldoc
+(leaf eldoc
+	:ensure t
   :diminish eldoc-mode)
 
-(use-package doom-themes
+(leaf doom-themes
   :ensure t
   :config
   ;; Global settings (defaults)
@@ -388,24 +410,28 @@
 	(setq custom-safe-themes t)
 	(load-theme 'doom-solarized-light))
 
-(use-package moody
+(leaf moody
+	:ensure t
   :init
   (setq x-underline-at-descent-line t)
   (moody-replace-mode-line-buffer-identification)
   (moody-replace-vc-mode)
   (moody-replace-eldoc-minibuffer-message-function))
 
-(use-package minions
+(leaf minions
+	:ensure t
 	:init (minions-mode 1))
 
-;; (use-package nix-mode
+;; (leaf nix-mode
 ;;   :mode "\\.nix\\'")
 
-(use-package flycheck
+(leaf flycheck
+	:ensure t
   :init (global-flycheck-mode))
 
-(use-package dashboard
-  :defer nil
+(leaf dashboard
+	:ensure t
+  :leaf-defer nil
   :preface
   (defun create-scratch-buffer ()
     "Create a scratch buffer"

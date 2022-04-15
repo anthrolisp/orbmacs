@@ -2,8 +2,7 @@
 
 ![O R B](https://github.com/kvvba/orbmacs/blob/ed9e8d190ea64375a8bc5af083aae321d57975c7/logo/orb.png?raw=true)
 
-Orbmacs is my relatively simple emacs init file, so called because of the dashboard image. It is my personal evolution of Witchmacs, and will be continually updated with changes I make.
-I would encourage you to create your own fork of this repository, as not all changes may be to your liking.
+Orbmacs is an emacs configuration. 
 
 # Installation
 Run in a terminal
@@ -11,23 +10,14 @@ Run in a terminal
 
 Either restart emacs at this point or simply use `M-x load-file`, and point it to `~/.emacs.d/init.el`
 
-All done!
-
-## Optional
-
-## Org 9.5
-
-Check your org version with `M-x org-version`.
-The built-in version of org (currently 9.4.4) forgoes some nice features.
-Launch emacs from terminal with `emacs -q`, optionally with `-nw` to launch without a window system.
-In emacs, do `M-x list-packages` to bring up a list of packages available.
-Search for org using I-search, `C-s`. Press `C-s` to step through the search results until you reach org 9.5.x
-Place the cursor over "org" and hit `RET`.
-Hit `C-x o` to switch to the new window, and hit `RET` over the install button - or click on the install button.
-
 # Notes
 
-Default folders (you need to create these yourself)
+I'm using the GTD method of organisation. If you do not like GTD, remove the parts relating to it in: agenda files, refile targets, and capture templates.
+
+If you wish to use mu4e you will need to write your own config for it.
+
+Default folders (you need to create these yourself if you do not have them)
 - Org agenda: `~/org`
 - Org journal: `~/org/journal`
 - Org roam: `~/RoamNotes`
+- Bongo: `~/Music/`
