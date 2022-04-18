@@ -1,9 +1,8 @@
 ;; <leaf-install-code>
 (eval-and-compile
   (customize-set-variable
-   'package-archives '(("org" . "https://orgmode.org/elpa/")
-		       ("melpa" . "https://melpa.org/packages/")
-		       ("gnu" . "https://elpa.gnu.org/packages/")))
+   'package-archives '(("melpa" . "https://melpa.org/packages/")
+											 ("gnu" . "https://elpa.gnu.org/packages/")))
   (package-initialize)
   (unless (package-installed-p 'leaf)
     (package-refresh-contents)
@@ -111,36 +110,11 @@
 ;; Highlight current line
 (global-hl-line-mode t)
 
-;; Change parent task to done when all subtasks are marked as done
-(defun org-summary-todo (n-done n-not-done)
-  (let (org-log-done org-log-states)   ; turn off logging
-    (org-todo (if (= n-not-done 0) "DONE" "TODO"))))
-(add-hook 'org-after-todo-statistics-hook #'org-summary-todo)
-
-;; Make [/] and [%] include *all* subtasks recusively
-;; (setq org-hierarchical-todo-statistics nil)
-
-;; Diable default startup screen
-(setq inhibit-startup-message t)
-
-(setq org-agenda-files '("~/org/gtd/inbox.org"
-												 "~/org/gtd/corkboard.org"
-												 "~/org/gtd/reminders.org"
-												 "~/org/timetable.org"))
-(global-set-key (kbd "C-c a") 'org-agenda)
-(setq recentf-exclude '("\\.org\\"))
-
-(setq org-todo-keywords
-	  '((sequence "TODO" "PROG" "|" "DONE" "CANC")))
-
-;; Set default alarm sound for end of timer
-(setq org-clock-sound "~/.emacs.d/media/digital_alarm.wav")
-(global-set-key (kbd "C-c t s") 'org-timer-set-timer)
-(global-set-key (kbd "C-c t k") 'org-timer-stop)
-(global-set-key (kbd "C-c t p") 'org-timer-pause-or-continue)
-
-;; Set default font to hack
-(setq default-frame-alist '((font . "Hack Nerd Font Mono-10")))
+(set-face-attribute 'default nil
+										:family "Hack Nerd Regular"
+										:height 100
+										:weight 'normal
+										:width 'normal)
 
 ;; Aliases
 (defalias 'open 'find-file-other-window)
@@ -195,7 +169,7 @@
 (setq octave-comment-char ?%)
 (add-to-list 'auto-mode-alist '("\\.m\\'" . octave-mode))
 
-;; Packages
+;; Org mode
 
 (require 'org)
 (add-hook 'org-mode-hook 'org-indent-mode)
@@ -218,10 +192,33 @@
 															("n" "Notes" entry
 															 (file+headline "~org/gtd/inbox.org" "Notes")
 															 "* %i%?")))
+(setq org-agenda-files '("~/org/gtd/inbox.org"
+												 "~/org/gtd/corkboard.org"
+												 "~/org/gtd/reminders.org"
+												 "~/org/timetable.org"))
+(global-set-key (kbd "C-c a") 'org-agenda)
+(setq recentf-exclude '("\\.org\\"))
+
+(setq org-todo-keywords
+	  '((sequence "TODO" "PROG" "|" "DONE" "CANC")))
+
+(setq org-clock-sound "~/.emacs.d/media/digital_alarm.wav")
+(global-set-key (kbd "C-c t s") 'org-timer-set-timer)
+(global-set-key (kbd "C-c t k") 'org-timer-stop)
+(global-set-key (kbd "C-c t p") 'org-timer-pause-or-continue)
+
+(add-to-list 'org-entities-user
+						 '("oint","\\oint{}" t "&#8750" "..." "..." "∮"))
 
 (setq org-refile-targets '(("~/org/gtd/reminders.org" :maxlevel . 2)
 													 ("~/org/gtd/someday.org" :level . 1)
 													 ("~/org/gtd/corkboard.org" :maxlevel . 3)))
+
+;; Change parent task to done when all subtasks are marked as done
+(defun org-summary-todo (n-done n-not-done)
+  (let (org-log-done org-log-states)   ; turn off logging
+    (org-todo (if (= n-not-done 0) "DONE" "TODO"))))
+(add-hook 'org-after-todo-statistics-hook #'org-summary-todo)
 
 (load "~/.emacs.d/mail.el")
 
@@ -443,6 +440,7 @@
     (lisp-interaction-mode))
   :config
   (dashboard-setup-startup-hook)
+	(setq inhibit-startup-message t)
   (setq dashboard-items '((recents . 5)
 						  (bookmarks . 9)))
   (add-to-list 'dashboard-items '(agenda) t)
