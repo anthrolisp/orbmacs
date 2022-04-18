@@ -214,7 +214,10 @@
 															 "* %i%?\n%U")
 															("m" "Meeting minutes" entry
 															 (file+headline "~/org/meetings.org" "Meeting notes")
-															 "* Meeting title: %(read-string \"Meeting title: \")\nAttending: Jakub Cranmer, %(read-string \"Attendees: \")\nTime: %U\n\n%i%?")))
+															 "* Meeting title: %(read-string \"Meeting title: \")\nAttending: Jakub Cranmer, %(read-string \"Attendees: \")\nTime: %U\n\n%i%?")
+															("n" "Notes" entry
+															 (file+headline "~org/gtd/inbox.org" "Notes")
+															 "* %i%?")))
 
 (setq org-refile-targets '(("~/org/gtd/reminders.org" :maxlevel . 2)
 													 ("~/org/gtd/someday.org" :level . 1)
@@ -309,7 +312,7 @@
 (leaf org-roam
   :ensure t
   :custom
-  (org-roam-directory . "~/org/")
+  (org-roam-directory . "~/RoamNotes")
   :bind (("C-c n l" . org-roam-buffer-toggle)
          ("C-c n f" . org-roam-node-find)
          ("C-c n g" . org-roam-graph)
@@ -418,9 +421,9 @@
   (moody-replace-vc-mode)
   (moody-replace-eldoc-minibuffer-message-function))
 
-(leaf minions
-	:ensure t
-	:init (minions-mode 1))
+;; (leaf minions
+;; 	:ensure t
+;; 	:init (minions-mode 1))
 
 ;; (leaf nix-mode
 ;;   :mode "\\.nix\\'")
