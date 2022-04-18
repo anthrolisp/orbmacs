@@ -331,7 +331,9 @@
   :config
   (setq ivy-use-virtual-buffers t)
   (setq ivy-count-format "(%d/%d) ")
-  (setq ivy-initial-inputs-alist nil))
+  (setq ivy-initial-inputs-alist nil)
+	(setq ivy-re-builders-alist
+				'((t . ivy--regex-ignore-order))))
 
 (leaf counsel
 	:ensure t
@@ -362,7 +364,8 @@
 (leaf avy
 	:ensure t
   :bind
-  ("M-s" . avy-goto-char))
+  ("M-s" . avy-goto-char)
+	("C-c l" . swiper-avy))
 
 (leaf switch-window
 	:ensure t

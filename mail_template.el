@@ -107,7 +107,7 @@
 (defun mu4e-other-window ()
 	"Open mu4e in new window."
   (interactive)
-	  (progn
+	(progn
 		(split-window-sensibly (selected-window))
 		(other-window 1)
 		(mu4e)))
