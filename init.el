@@ -183,6 +183,9 @@
 (setq org-capture-templates '(("t" "Todo [inbox]" entry
 															 (file+headline "~/org/gtd/inbox.org" "Tasks")
 															 "* TODO %i%?")
+															("d" "Dump brain" entry
+															 (file+headline "~/org/gtd/inbox.org" "Brain dump")
+															 "* %(read-string\"Title: \") %T\n%i%?")
 															("r" "Reminder" entry
 															 (file+headline "~/org/gtd/reminders.org" "Reminders")
 															 "* %i%?\n%U")
@@ -226,9 +229,9 @@
 	:ensure t
 	:config
 	(mu4e-alert-set-default-style 'libnotify)
-	(add-hook 'after-init-hook #'mu4e-alert-enable-notifications)
-	:hook
-	(after-init . mu4e-alert-enable-mode-line-display))
+	:init
+	(mu4e-alert-enable-mode-line-display)
+	(mu4e-alert-enable-notifications))
 
 (load "~/.emacs.d/music.el")
 
@@ -286,6 +289,8 @@
   (company-idle-delay . 0.5) ;; how long to wait until popup
   ;; (company-begin-commands nil) ;; uncomment to disable popup
   (global-company-mode . t)
+	:config
+	(add-to-list 'company-backends 'company-capf)
   :bind company-active-map
 	      ("C-n" . company-select-next)
 	      ("C-p" . company-select-previous)
@@ -309,20 +314,47 @@
 (leaf org-roam
   :ensure t
   :custom
-  (org-roam-directory . "~/RoamNotes")
-  :bind (("C-c n l" . org-roam-buffer-toggle)
-         ("C-c n f" . org-roam-node-find)
-         ("C-c n g" . org-roam-graph)
-         ("C-c n i" . org-roam-node-insert)
-         ("C-c n c" . org-roam-capture)
-         ;; Dailies
-         ("C-c n j" . org-roam-dailies-capture-today))
+  (org-roam-directory . "~/RoamNotes/")
+  :bind
+	("C-c n l" . org-roam-buffer-toggle)
+  ("C-c n f" . org-roam-node-find)
+  ("C-c n g" . org-roam-graph)
+  ("C-c n i" . org-roam-node-insert)
+	("C-c n I" . org-roam-node-insert-immediate)
+  ("C-c n c" . org-roam-capture)
+  ("C-c n j" . org-roam-dailies-capture-today)
   :config
-  ;; If you're using a vertical completion framework, you might want a more informative completion interface
-  (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
+	(setq org-roam-completion-everywhere t)
+	(setq org-roam-node-display-template
+      (concat "${type:15} ${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
   (org-roam-db-autosync-mode)
-  ;; If using org-roam-protocol
-  (require 'org-roam-protocol))
+	
+	(defun org-roam-node-insert-immediate (arg &rest args)
+  (interactive "P")
+  (let ((args (cons arg args))
+        (org-roam-capture-templates (list (append (car org-roam-capture-templates)
+                                                  '(:immediate-finish t)))))
+    (apply #'org-roam-node-insert args)))
+	(setq org-roam-capture-templates
+				'(("m" "main" plain
+					 "%?"
+					 :if-new (file+head "main/${slug}.org"
+															"#+title: ${title}\n")
+					 :immediate-finish t
+					 :unnarrowed t)
+					("r" "reference" plain "%?"
+					 :if-new
+					 (file+head "reference/${title}.org" "#+title: ${title}\n")
+					 :immediate-finish t
+					 :unnarrowed t)))
+	(cl-defmethod org-roam-node-type ((node org-roam-node))
+		"Return the TYPE of NODE."
+		(condition-case nil
+				(file-name-nondirectory
+				 (directory-file-name
+					(file-name-directory
+					 (file-relative-name (org-roam-node-file node) org-roam-directory))))
+			(error ""))))
 
 (leaf ivy
 	:ensure t
