@@ -32,7 +32,6 @@ If you wish to use mu4e for email, you will need to do some additional setup. Th
 
 Default folders (you need to create these yourself if you do not have them)
 - Org agenda: `~/org/`
-- Org journal: `~/org/journal/`
 - GTD: `~/org/gtd/`
 - Org roam: `~/RoamNotes/`
 - Bongo: `~/Music/`

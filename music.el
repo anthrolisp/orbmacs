@@ -237,26 +237,26 @@ Also see `prot/bongo-playlist-insert-playlist-file'."
          ("<M-XF86AudioPlay>" . bongo-show)
          ("<S-XF86AudioNext>" . bongo-seek-forward-10)
          ("<S-XF86AudioPrev>" . bongo-seek-backward-10)
-				 ("C-c b"             . bongo))
-  :bind (bongo-playlist-mode-map
-								("n" . bongo-next-object)
-								("p" . bongo-previous-object)
-								("M-n" . prot/bongo-paylist-section-next)
-								("M-p" . prot/bongo-paylist-section-previous)
-								("M-h" . prot/bongo-playlist-mark-section)
-								("M-d" . prot/bongo-playlist-kill-section)
-								("g" . prot/bongo-playlist-reset)
-								("D" . prot/bongo-playlist-terminate)
-								("r" . prot/bongo-playlist-random-toggle)
-								("R" . bongo-rename-line)
-								("j" . bongo-dired-line)       ; Jump to dir of file at point
-								("J" . dired-jump)             ; Jump to library buffer
-								("i" . prot/bongo-playlist-insert-playlist-file)
-								("I" . bongo-insert-special))
-  :bind (bongo-dired-library-mode-map
-								("<C-return>" . prot/bongo-dired-insert)
-								("C-c SPC" . prot/bongo-dired-insert)
-								("C-c +" . prot/bongo-dired-make-playlist-file)))
+				 ("C-c b"             . bongo)
+				 (bongo-playlist-mode-map
+					("n" . bongo-next-object)
+					("p" . bongo-previous-object)
+					("M-n" . prot/bongo-paylist-section-next)
+					("M-p" . prot/bongo-paylist-section-previous)
+					("M-h" . prot/bongo-playlist-mark-section)
+					("M-d" . prot/bongo-playlist-kill-section)
+					("g" . prot/bongo-playlist-reset)
+					("D" . prot/bongo-playlist-terminate)
+					("r" . prot/bongo-playlist-random-toggle)
+					("R" . bongo-rename-line)
+					("j" . bongo-dired-line)       ; Jump to dir of file at point
+					("J" . dired-jump)             ; Jump to library buffer
+					("i" . prot/bongo-playlist-insert-playlist-file)
+					("I" . bongo-insert-special))
+				 (bongo-dired-library-mode-map
+					("<C-return>" . prot/bongo-dired-insert)
+					("C-c SPC" . prot/bongo-dired-insert)
+					("C-c +" . prot/bongo-dired-make-playlist-file))))
 
 (provide 'music)
 ;;; music.el ends here

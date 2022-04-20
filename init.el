@@ -13,9 +13,7 @@
     :init
     ;; optional packages if you want to use :hydra, :el-get, :blackout,,,
     (leaf hydra :ensure t)
-    (leaf el-get :ensure t)
     (leaf blackout :ensure t)
-
     :config
     ;; initialize leaf-keywords.el
     (leaf-keywords-init)))
@@ -23,7 +21,7 @@
 
 ;; Make emacs startup faster
 (setq gc-cons-threshold 402653184
-	  gc-cons-percentage 0.6)
+			gc-cons-percentage 0.6)
 
 (defvar startup/file-name-handler-alist file-name-handler-alist)
 (setq file-name-handler-alist nil)
@@ -33,7 +31,7 @@
 
 (defun startup/reset-gc ()
   (setq gc-cons-threshold 16777216
-		gc-cons-percentage 0.1))
+				gc-cons-percentage 0.1))
 
 (add-hook 'emacs-startup-hook 'startup/revert-file-name-handler-alist)
 (add-hook 'emacs-startup-hook 'startup/reset-gc)
@@ -76,11 +74,11 @@
 
 ;; Enable bracket pair-matching
 (setq electric-pair-pairs '(
-				(?\{ . ?\})
-				(?\( . ?\))
-				(?\[ . ?\])
-				(?\" . ?\")
-				))
+														(?\{ . ?\})
+														(?\( . ?\))
+														(?\[ . ?\])
+														(?\" . ?\")
+														))
 (electric-pair-mode t)
 
 ;; Cursor follows new window
@@ -123,38 +121,38 @@
 ;; Eshell
 (setq eshell-prompt-regexp "^[^αλ\n]*[αλ] ")
 (setq eshell-prompt-function
-	  (lambda nil
-		(concat
-		 (if (string= (eshell/pwd) (getenv "HOME"))
-			 (propertize "~" 'face `(:foreground "#268bd2"))
-		   (replace-regexp-in-string
-			(getenv "HOME")
-			(propertize "~" 'face `(:foreground "#268bd2"))
-			(propertize (eshell/pwd) 'face `(:foreground "#268bd2"))))
-		 (if (= (user-uid) 0)
-			 (propertize " α " 'face `(:foreground "#d33682"))
-		   (propertize " λ " 'face `(:foreground "#d33682"))))))
+			(lambda nil
+				(concat
+				 (if (string= (eshell/pwd) (getenv "HOME"))
+						 (propertize "~" 'face `(:foreground "#268bd2"))
+					 (replace-regexp-in-string
+						(getenv "HOME")
+						(propertize "~" 'face `(:foreground "#268bd2"))
+						(propertize (eshell/pwd) 'face `(:foreground "#268bd2"))))
+				 (if (= (user-uid) 0)
+						 (propertize " α " 'face `(:foreground "#d33682"))
+					 (propertize " λ " 'face `(:foreground "#d33682"))))))
 
 (setq eshell-highlight-prompt nil)
 
 (defun eshell/sudo-open (filename)
   "Open a file (FILENAME) as root in Eshell."
   (let ((qual-filename (if (string-match "^/" filename)
-						   filename
-						 (concat (expand-file-name (eshell/pwd)) "/" filename))))
-	(switch-to-buffer
-	 (find-file-noselect
-	  (concat "/sudo::" qual-filename)))))
+													 filename
+												 (concat (expand-file-name (eshell/pwd)) "/" filename))))
+		(switch-to-buffer
+		 (find-file-noselect
+			(concat "/sudo::" qual-filename)))))
 
 (defun eshell-other-window ()
   "Create or visit an eshell buffer."
   (interactive)
   (if (not (get-buffer "*eshell*"))
-	  (progn
-		(split-window-sensibly (selected-window))
-		(other-window 1)
-		(eshell))
-	(switch-to-buffer-other-window "*eshell*")))
+			(progn
+				(split-window-sensibly (selected-window))
+				(other-window 1)
+				(eshell))
+		(switch-to-buffer-other-window "*eshell*")))
 
 (global-set-key (kbd "<s-C-return>") 'eshell-other-window)
 (global-set-key (kbd "C-c e") 'eshell)
@@ -174,8 +172,9 @@
 (require 'org)
 (add-hook 'org-mode-hook 'org-indent-mode)
 (add-hook 'org-mode-hook
-	'(lambda ()
-	   (visual-line-mode 1)))
+					'(lambda ()
+						 (visual-line-mode 1)))
+(add-hook 'org-mode-hook 'turn-on-flyspell)
 (setq org-pretty-entities t)
 (add-hook 'org-after-todo-statistics-hook 'org-summary-todo)
 (global-set-key (kbd "C-c c") 'org-capture)
@@ -203,7 +202,7 @@
 (setq recentf-exclude '("\\.org\\"))
 
 (setq org-todo-keywords
-	  '((sequence "TODO" "PROG" "|" "DONE" "CANC")))
+			'((sequence "TODO" "PROG" "|" "DONE" "CANC")))
 
 (setq org-clock-sound "~/.emacs.d/media/digital_alarm.wav")
 (global-set-key (kbd "C-c t s") 'org-timer-set-timer)
@@ -286,16 +285,16 @@
 (leaf company
 	:ensure t
   :custom
-  (company-idle-delay . 0.5) ;; how long to wait until popup
+  (company-idle-delay . 0.25) ;; how long to wait until popup
   ;; (company-begin-commands nil) ;; uncomment to disable popup
   (global-company-mode . t)
 	:config
 	(add-to-list 'company-backends 'company-capf)
-  :bind company-active-map
-	      ("C-n" . company-select-next)
-	      ("C-p" . company-select-previous)
-	      ("M-<" . company-select-first)
-	      ("M->" . company-select-last))
+  :bind (company-active-map
+	       ("C-n" . company-select-next)
+	       ("C-p" . company-select-previous)
+	       ("M-<" . company-select-first)
+	       ("M->" . company-select-last)))
 
 (leaf yasnippet
 	:ensure t
@@ -303,38 +302,49 @@
   (prog-mode-hook . yas-minor-mode)
   (text-mode-hook . yas-minor-mode))
 
-(leaf org-journal
-	:ensure t
-  :leaf-defer t
-  :bind (("C-c C-j" . org-journal-new-entry))
-  :config
-  (setq org-journal-dir "~/org/journal/"
-        org-journal-date-format "%A, %d %B %Y"))
-
 (leaf org-roam
   :ensure t
   :custom
   (org-roam-directory . "~/RoamNotes/")
-  :bind
-	("C-c n l" . org-roam-buffer-toggle)
-  ("C-c n f" . org-roam-node-find)
-  ("C-c n g" . org-roam-graph)
-  ("C-c n i" . org-roam-node-insert)
-	("C-c n I" . org-roam-node-insert-immediate)
-  ("C-c n c" . org-roam-capture)
-  ("C-c n j" . org-roam-dailies-capture-today)
-  :config
+  :bind (("C-c n l" . org-roam-buffer-toggle)
+				 ("C-c n f" . org-roam-node-find)
+				 ("C-c n g" . org-roam-graph)
+				 ("C-c n i" . org-roam-node-insert)
+				 ("C-c n I" . org-roam-node-insert-immediate)
+				 ("C-c n c" . org-roam-capture))
+	:init
+	(defhydra hydra-dailies (:hint none :exit t)
+		"
+org roam dailies
+[_j_]: capture today        [_J_]: goto today
+[_y_]: capture yesterday    [_Y_]: goto yesterday
+[_d_]: capture date         [_D_]: goto date
+"
+		("j" org-roam-dailies-capture-today)
+		("J" org-roam-dailies-goto-today)
+		("y" org-roam-dailies-capture-yesterday)
+		("Y" org-roam-dailies-goto-yesterday)
+		("d" org-roam-dailies-capture-date)
+		("D" org-roam-dailies-goto-date))
+	(global-set-key (kbd "C-c n d") 'hydra-dailies/body)
+	:config
 	(setq org-roam-completion-everywhere t)
+	(setq org-roam-dailies-directory "~/RoamNotes/daily/")
 	(setq org-roam-node-display-template
-      (concat "${type:15} ${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
+				(concat "${type:15} ${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
   (org-roam-db-autosync-mode)
-	
+
 	(defun org-roam-node-insert-immediate (arg &rest args)
-  (interactive "P")
-  (let ((args (cons arg args))
-        (org-roam-capture-templates (list (append (car org-roam-capture-templates)
-                                                  '(:immediate-finish t)))))
-    (apply #'org-roam-node-insert args)))
+		(interactive "P")
+		(let ((args (cons arg args))
+					(org-roam-capture-templates (list (append (car org-roam-capture-templates)
+																										'(:immediate-finish t)))))
+			(apply #'org-roam-node-insert args)))
+
+	(setq org-roam-dailies-capture-templates
+				'(("d" "default" entry "* %<%R>\n%?"
+					 :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
+	
 	(setq org-roam-capture-templates
 				'(("m" "main" plain
 					 "%?"
@@ -346,7 +356,13 @@
 					 :if-new
 					 (file+head "reference/${title}.org" "#+title: ${title}\n")
 					 :immediate-finish t
-					 :unnarrowed t)))
+					 :unnarrowed t)
+					("u" "university" plain
+					 "%?"
+					 :if-new (file+head "university/${slug}.org" "#+title: ${title}\n")
+					 :immediate-finish t
+					 :unarrowed t)))
+	
 	(cl-defmethod org-roam-node-type ((node org-roam-node))
 		"Return the TYPE of NODE."
 		(condition-case nil
@@ -407,7 +423,7 @@
   (setq switch-window-threshold 2)
   (setq switch-window-shortcut-style 'qwerty)
   (setq switch-window-qwerty-shortcuts
-		'("a" "s" "d" "f" "j" "k" "l"))
+				'("a" "s" "d" "f" "j" "k" "l"))
   :bind
   ([remap other-window] . switch-window))
 
@@ -477,7 +493,7 @@
   (dashboard-setup-startup-hook)
 	(setq inhibit-startup-message t)
   (setq dashboard-items '((recents . 5)
-						  (bookmarks . 9)))
+													(bookmarks . 9)))
   (add-to-list 'dashboard-items '(agenda) t)
   (setq deashboard-week-agenda t)
   (setq dashboard-banner-logo-title "O R B M A C S")
