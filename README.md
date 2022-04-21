@@ -2,7 +2,7 @@
 
 ![O R B](https://github.com/kvvba/orbmacs/blob/ed9e8d190ea64375a8bc5af083aae321d57975c7/logo/orb.png?raw=true)
 
-Orbmacs is an emacs configuration featuring Zettelkasten (org roam), completion features (ivy), avy, email, music, and some useful key chords & "sane defaults". It is a relatively simple configuration I consider to be "comfy", and which allows me to accomplish most of my computing tasks. Unfortunately there are presently no orbs in orbmacs aside from the dashboard image, but I am looking into ways to resolve this issue.
+Orbmacs is an emacs configuration featuring Zettelkasten (org roam), a journal (org roam), completion features (ivy), avy, email, music, and some useful key chords & "sane defaults". It is a relatively simple configuration I consider to be "comfy", and which allows me to accomplish most of my computing tasks. Unfortunately there are presently no orbs in orbmacs aside from the dashboard image, but I am looking into ways to resolve this issue.
 
 Packages are managed using [leaf](https://github.com/conao3/leaf.el).
 

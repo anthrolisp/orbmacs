@@ -13,11 +13,25 @@
     :init
     ;; optional packages if you want to use :hydra, :el-get, :blackout,,,
     (leaf hydra :ensure t)
+		;; (leaf el-get :ensure t)
     (leaf blackout :ensure t)
     :config
     ;; initialize leaf-keywords.el
     (leaf-keywords-init)))
 ;; </leaf-install-code>
+
+;; (defvar bootstrap-version)
+;; (let ((bootstrap-file
+;;        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+;;       (bootstrap-version 5))
+;;   (unless (file-exists-p bootstrap-file)
+;;     (with-current-buffer
+;;         (url-retrieve-synchronously
+;;          "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+;;          'silent 'inhibit-cookies)
+;;       (goto-char (point-max))
+;;       (eval-print-last-sexp)))
+;;   (load bootstrap-file nil 'nomessage))
 
 ;; Make emacs startup faster
 (setq gc-cons-threshold 402653184
@@ -49,7 +63,7 @@
 (scroll-bar-mode -1)
 
 ;; Copy paste outside of emacs
-(setq x-select-enable-clipboard t)
+(setq select-enable-clipboard t)
 
 ;; Disable automatic backup files
 (setq make-backup-files nil)
@@ -157,8 +171,6 @@
 (global-set-key (kbd "<s-C-return>") 'eshell-other-window)
 (global-set-key (kbd "C-c e") 'eshell)
 
-(global-set-key (kbd "C-c v") 'vterm)
-
 (require 'cl-lib)
 
 (setq inferior-lisp-program "sbcl")
@@ -166,6 +178,9 @@
 ;; Octave
 (setq octave-comment-char ?%)
 (add-to-list 'auto-mode-alist '("\\.m\\'" . octave-mode))
+
+(leaf svg-tag-mode
+	:ensure t)
 
 ;; Org mode
 
@@ -182,18 +197,15 @@
 (setq org-capture-templates '(("t" "Todo [inbox]" entry
 															 (file+headline "~/org/gtd/inbox.org" "Tasks")
 															 "* TODO %i%?")
-															("d" "Dump brain" entry
-															 (file+headline "~/org/gtd/inbox.org" "Brain dump")
+															("n" "Note" entry
+															 (file+headline "~/org/gtd/inbox.org" "Notes")
 															 "* %(read-string\"Title: \") %T\n%i%?")
 															("r" "Reminder" entry
 															 (file+headline "~/org/gtd/reminders.org" "Reminders")
 															 "* %i%?\n%U")
 															("m" "Meeting minutes" entry
 															 (file+headline "~/org/meetings.org" "Meeting notes")
-															 "* Meeting title: %(read-string \"Meeting title: \")\nAttending: Jakub Cranmer, %(read-string \"Attendees: \")\nTime: %U\n\n%i%?")
-															("n" "Notes" entry
-															 (file+headline "~org/gtd/inbox.org" "Notes")
-															 "* %i%?")))
+															 "* Meeting title: %(read-string \"Meeting title: \")\nAttending: Jakub Cranmer, %(read-string \"Attendees: \")\nTime: %U\n\n%i%?")))
 (setq org-agenda-files '("~/org/gtd/inbox.org"
 												 "~/org/gtd/corkboard.org"
 												 "~/org/gtd/reminders.org"
@@ -241,12 +253,11 @@
             (kill-buffer buffer))) 
         (buffer-list)))
 
-(leaf svg-tag-mode)
-
 (leaf vterm
 	:ensure t
   :config
-  (setq vterm-timer-delay 0.01))
+  (setq vterm-timer-delay 0.01)
+	(global-set-key (kbd "C-c v") 'vterm))
 
 (leaf slime
 	:ensure t)
@@ -313,19 +324,22 @@
 				 ("C-c n I" . org-roam-node-insert-immediate)
 				 ("C-c n c" . org-roam-capture))
 	:init
-	(defhydra hydra-dailies (:hint none :exit t)
+	(defhydra hydra-dailies (:hint nil :exit t)
 		"
 org roam dailies
+
 [_j_]: capture today        [_J_]: goto today
 [_y_]: capture yesterday    [_Y_]: goto yesterday
 [_d_]: capture date         [_D_]: goto date
+
 "
 		("j" org-roam-dailies-capture-today)
 		("J" org-roam-dailies-goto-today)
 		("y" org-roam-dailies-capture-yesterday)
 		("Y" org-roam-dailies-goto-yesterday)
 		("d" org-roam-dailies-capture-date)
-		("D" org-roam-dailies-goto-date))
+		("D" org-roam-dailies-goto-date)
+		("q" nil "abort"))
 	(global-set-key (kbd "C-c n d") 'hydra-dailies/body)
 	:config
 	(setq org-roam-completion-everywhere t)
@@ -459,7 +473,7 @@ org roam dailies
   (doom-themes-org-config)
 	:init
 	(setq custom-safe-themes t)
-	(load-theme 'doom-solarized-light))
+	(load-theme 'doom-homage-white))
 
 (leaf moody
 	:ensure t
@@ -504,3 +518,23 @@ org roam dailies
   (setq dashboard-set-init-info t)
   (setq dashboard-init-info (format "%d packages loaded in %s"
                                     (length package-activated-list) (emacs-init-time))))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
