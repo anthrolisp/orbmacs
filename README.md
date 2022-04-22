@@ -6,10 +6,11 @@ Orbmacs is an emacs configuration featuring:
 - Zettelkasten (org roam)
 - Journalling (org roam)
 - Completion features (vertico)
-- Avy movement
+- Advanced movement (avy)
 - Email (mu4e)
-- Music (bongo)
+- Music with dired integration (bongo)
 - Reference management (citar)
+- Better window switching (ace-window)
 - Useful bits and pieces
 
 It is a relatively simple configuration I consider to be "comfy", and which allows me to accomplish most of my computing tasks.
@@ -19,6 +20,8 @@ Unfortunately there are presently no orbs in orbmacs aside from the dashboard im
 Packages are managed using [leaf](https://github.com/conao3/leaf.el).
 
 Emacs is a never-ending journey and as such, my setup is always evolving. I would encourage forking this repository if you are interested in using it as a base for your own customizations, but ideally you should build your own configuration from scratch and simply pick out any parts you like.
+
+In the future I intend to add more features for python programming, specifically with numpy, and tweaks to org/org-roam.
 
 If you have any questions or suggestions please feel free to contact me, and I will do my best to respond promptly. A fair warning that I am a mechanical engineer and not a programmer by trade.
 

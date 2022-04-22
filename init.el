@@ -425,7 +425,8 @@ org roam dailies
 
 (leaf swiper
 	:ensure t
-  :bind ("C-s" . 'swiper))
+  :bind (("C-s" . swiper)
+				 ("C-c l" . swiper-avy)))
 
 (leaf vertico
 	:ensure t
