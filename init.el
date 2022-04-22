@@ -33,208 +33,253 @@
 ;;       (eval-print-last-sexp)))
 ;;   (load bootstrap-file nil 'nomessage))
 
-;; Make emacs startup faster
-(setq gc-cons-threshold 402653184
-			gc-cons-percentage 0.6)
+(leaf emacs
+	:init
+	;; Make emacs start faster
+	(setq gc-cons-threshold 402653184
+      gc-cons-percentage 0.6)
+	
+	(defvar startup/file-name-handler-alist file-name-handler-alist)
+	(setq file-name-handler-alist nil)
 
-(defvar startup/file-name-handler-alist file-name-handler-alist)
-(setq file-name-handler-alist nil)
+	(defun startup/revert-file-name-handler-alist ()
+		(setq file-name-handler-alist startup/file-name-handler-alist))
 
-(defun startup/revert-file-name-handler-alist ()
-  (setq file-name-handler-alist startup/file-name-handler-alist))
+	(defun startup/reset-gc ()
+		(setq gc-cons-threshold 16777216
+					gc-cons-percentage 0.1))
 
-(defun startup/reset-gc ()
-  (setq gc-cons-threshold 16777216
-				gc-cons-percentage 0.1))
+	(add-hook 'emacs-startup-hook 'startup/revert-file-name-handler-alist)
+	(add-hook 'emacs-startup-hook 'startup/reset-gc)
 
-(add-hook 'emacs-startup-hook 'startup/revert-file-name-handler-alist)
-(add-hook 'emacs-startup-hook 'startup/reset-gc)
+	;; Show line numbers
+	(add-hook 'prog-mode-hook 'display-line-numbers-mode)
+	(add-hook 'text-mode-hook 'display-line-numbers-mode)
 
-;; Show line numbers
-(add-hook 'prog-mode-hook 'display-line-numbers-mode)
-(add-hook 'text-mode-hook 'display-line-numbers-mode)
+	;; Show parent brackets
+	(show-paren-mode 1)
 
-;; Show parent brackets
-(show-paren-mode 1)
+	;; Diable GUI elements
+	(tool-bar-mode -1)
+	(menu-bar-mode -1)
+	(scroll-bar-mode -1)
 
-;; Diable GUI elements
-(tool-bar-mode -1)
-(menu-bar-mode -1)
-(scroll-bar-mode -1)
+	;; Copy paste outside of emacs
+	(setq select-enable-clipboard t)
 
-;; Copy paste outside of emacs
-(setq select-enable-clipboard t)
+	;; Disable automatic backup files
+	(setq make-backup-files nil)
+	(setq auto-save-default nil)
 
-;; Disable automatic backup files
-(setq make-backup-files nil)
-(setq auto-save-default nil)
+	;; Enable conservative scrolling
+	(setq scroll-conservatively 100)
 
-;; Enable conservative scrolling
-(setq scroll-conservatively 100)
+	;; Diable ring-bell
+	;; (setq ring-bell-function 'ignore)
 
-;; Diable ring-bell
-;; (setq ring-bell-function 'ignore)
+	;; Indentation
+	(setq-default tab-width 2)
+	(setq-default standard-indent 2)
+	(setq c-basic-offset tab-width)
+	(setq-default electric-indent-inhibit t)
+	(setq-default indent-tabs-mode t)
+	(setq backward-delete-char-untabify-method 'nil)
 
-;; Indentation
-(setq-default tab-width 2)
-(setq-default standard-indent 2)
-(setq c-basic-offset tab-width)
-(setq-default electric-indent-inhibit t)
-(setq-default indent-tabs-mode t)
-(setq backward-delete-char-untabify-method 'nil)
+	;; Enable prettify symbols
+	;; (global-prettify-symbols-mode t)
 
-;; Enable prettify symbols
-;; (global-prettify-symbols-mode t)
+	;; Enable bracket pair-matching
+	(setq electric-pair-pairs '(
+															(?\{ . ?\})
+															(?\( . ?\))
+															(?\[ . ?\])
+															(?\" . ?\")
+															))
+	(electric-pair-mode t)
 
-;; Enable bracket pair-matching
-(setq electric-pair-pairs '(
-														(?\{ . ?\})
-														(?\( . ?\))
-														(?\[ . ?\])
-														(?\" . ?\")
-														))
-(electric-pair-mode t)
+	;; Cursor follows new window
+	(defun split-and-follow-horizontally ()
+		(interactive)
+		(split-window-below)
+		(balance-windows)
+		(other-window 1))
+	(global-set-key (kbd "C-x 2") 'split-and-follow-horizontally)
 
-;; Cursor follows new window
-(defun split-and-follow-horizontally ()
-  (interactive)
-  (split-window-below)
-  (balance-windows)
-  (other-window 1))
-(global-set-key (kbd "C-x 2") 'split-and-follow-horizontally)
+	(defun split-and-follow-vertically ()
+		(interactive)
+		(split-window-right)
+		(balance-windows)
+		(other-window 1))
+	(global-set-key (kbd "C-x 3") 'split-and-follow-vertically)
 
-(defun split-and-follow-vertically ()
-  (interactive)
-  (split-window-right)
-  (balance-windows)
-  (other-window 1))
-(global-set-key (kbd "C-x 3") 'split-and-follow-vertically)
+	;; Turn yes-or-no to y-or-n
+	(defalias 'yes-or-no-p 'y-or-n-p)
 
-;; Turn yes-or-no to y-or-n
-(defalias 'yes-or-no-p 'y-or-n-p)
+	;; Rebind keys for resizing
+	(global-set-key (kbd "s-C-<left>") 'shrink-window-horizontally)
+	(global-set-key (kbd "s-C-<right>") 'enlarge-window-horizontally)
+	(global-set-key (kbd "s-C-<down>") 'shrink-window)
+	(global-set-key (kbd "s-C-<up>") 'enlarge-window)
 
-;; Rebind keys for resizing
-(global-set-key (kbd "s-C-<left>") 'shrink-window-horizontally)
-(global-set-key (kbd "s-C-<right>") 'enlarge-window-horizontally)
-(global-set-key (kbd "s-C-<down>") 'shrink-window)
-(global-set-key (kbd "s-C-<up>") 'enlarge-window)
+	;; Highlight current line
+	(global-hl-line-mode t)
 
-;; Highlight current line
-(global-hl-line-mode t)
+	(set-face-attribute 'default nil
+											:family "Hack Nerd Regular"
+											:height 100
+											:weight 'normal
+											:width 'normal)
 
-(set-face-attribute 'default nil
-										:family "Hack Nerd Regular"
-										:height 100
-										:weight 'normal
-										:width 'normal)
+	;; Aliases
+	(defalias 'open 'find-file-other-window)
+	(defalias 'clean 'eshell/clear-scrollback)
 
-;; Aliases
-(defalias 'open 'find-file-other-window)
-(defalias 'clean 'eshell/clear-scrollback)
+	(defun kill-dired-buffers ()
+		(interactive)
+		(mapc (lambda (buffer) 
+						(when (eq 'dired-mode (buffer-local-value 'major-mode buffer)) 
+							(kill-buffer buffer))) 
+					(buffer-list)))
 
-;; Eshell
-(setq eshell-prompt-regexp "^[^αλ\n]*[αλ] ")
-(setq eshell-prompt-function
-			(lambda nil
-				(concat
-				 (if (string= (eshell/pwd) (getenv "HOME"))
-						 (propertize "~" 'face `(:foreground "#268bd2"))
-					 (replace-regexp-in-string
-						(getenv "HOME")
-						(propertize "~" 'face `(:foreground "#268bd2"))
-						(propertize (eshell/pwd) 'face `(:foreground "#268bd2"))))
-				 (if (= (user-uid) 0)
-						 (propertize " α " 'face `(:foreground "#d33682"))
-					 (propertize " λ " 'face `(:foreground "#d33682"))))))
+	(eval-after-load "dired-aux"
+		'(add-to-list 'dired-compress-file-suffixes 
+									'("\\.zip\\'" ".zip" "unzip")))
+	(eval-after-load "dired"
+		'(define-key dired-mode-map "z" 'dired-zip-files))
 
-(setq eshell-highlight-prompt nil)
+	(defun dired-zip-files (zip-file)
+		"Create an archive containing the marked files."
+		(interactive "sEnter name of zip file: ")
+		;; create the zip file
+		(let ((zip-file (if (string-match ".zip$" zip-file) zip-file (concat zip-file ".zip"))))
+			(shell-command 
+			 (concat "zip " 
+							 zip-file
+							 " "
+							 (concat-string-list 
+								(mapcar
+								 '(lambda (filename)
+										(file-name-nondirectory filename))
+								 (dired-get-marked-files))))))
 
-(defun eshell/sudo-open (filename)
-  "Open a file (FILENAME) as root in Eshell."
-  (let ((qual-filename (if (string-match "^/" filename)
-													 filename
-												 (concat (expand-file-name (eshell/pwd)) "/" filename))))
-		(switch-to-buffer
-		 (find-file-noselect
-			(concat "/sudo::" qual-filename)))))
+		(revert-buffer)
 
-(defun eshell-other-window ()
-  "Create or visit an eshell buffer."
-  (interactive)
-  (if (not (get-buffer "*eshell*"))
-			(progn
-				(split-window-sensibly (selected-window))
-				(other-window 1)
-				(eshell))
-		(switch-to-buffer-other-window "*eshell*")))
+		;; remove the mark on all the files  "*" to " "
+		;; (dired-change-marks 42 ?\040)
+		;; mark zip file
+		;; (dired-mark-files-regexp (filename-to-regexp zip-file))
+		)
 
-(global-set-key (kbd "<s-C-return>") 'eshell-other-window)
-(global-set-key (kbd "C-c e") 'eshell)
+	(defun concat-string-list (list) 
+		"Return a string which is a concatenation of all elements of the list separated by spaces" 
+    (mapconcat '(lambda (obj) (format "%s" obj)) list " ")) 
 
-(require 'cl-lib)
+	(require 'cl-lib)
 
-(setq inferior-lisp-program "sbcl")
+	(setq inferior-lisp-program "sbcl")
 
-;; Octave
-(setq octave-comment-char ?%)
-(add-to-list 'auto-mode-alist '("\\.m\\'" . octave-mode))
+	(setq enable-recursive-minibuffers t))
 
-(leaf svg-tag-mode
-	:ensure t)
+(leaf octave
+	:config
+	(setq octave-comment-char ?%)
+	(add-to-list 'auto-mode-alist '("\\.m\\'" . octave-mode)))
 
-;; Org mode
+(leaf eshell
+	:defer-config
+		;; Eshell
+	(setq eshell-prompt-regexp "^[^αλ\n]*[αλ] ")
+	(setq eshell-prompt-function
+				(lambda nil
+					(concat
+					 (if (string= (eshell/pwd) (getenv "HOME"))
+							 (propertize "~" 'face `(:foreground "#268bd2"))
+						 (replace-regexp-in-string
+							(getenv "HOME")
+							(propertize "~" 'face `(:foreground "#268bd2"))
+							(propertize (eshell/pwd) 'face `(:foreground "#268bd2"))))
+					 (if (= (user-uid) 0)
+							 (propertize " α " 'face `(:foreground "#d33682"))
+						 (propertize " λ " 'face `(:foreground "#d33682"))))))
 
-(require 'org)
-(add-hook 'org-mode-hook 'org-indent-mode)
-(add-hook 'org-mode-hook
-					'(lambda ()
-						 (visual-line-mode 1)))
-(add-hook 'org-mode-hook 'turn-on-flyspell)
+	(setq eshell-highlight-prompt nil)
+
+	(defun eshell/sudo-open (filename)
+		"Open a file (FILENAME) as root in Eshell."
+		(let ((qual-filename (if (string-match "^/" filename)
+														 filename
+													 (concat (expand-file-name (eshell/pwd)) "/" filename))))
+			(switch-to-buffer
+			 (find-file-noselect
+				(concat "/sudo::" qual-filename)))))
+
+	(defun eshell-other-window ()
+		"Create or visit an eshell buffer."
+		(interactive)
+		(if (not (get-buffer "*eshell*"))
+				(progn
+					(split-window-sensibly (selected-window))
+					(other-window 1)
+					(eshell))
+			(switch-to-buffer-other-window "*eshell*")))
+
+	(global-set-key (kbd "<s-C-return>") 'eshell-other-window)
+	(global-set-key (kbd "C-c e") 'eshell))
+
+(leaf org
+	:ensure t
+	:config
 (setq org-pretty-entities t)
-(add-hook 'org-after-todo-statistics-hook 'org-summary-todo)
-(global-set-key (kbd "C-c c") 'org-capture)
-
-(setq org-capture-templates '(("t" "Todo [inbox]" entry
-															 (file+headline "~/org/gtd/inbox.org" "Tasks")
-															 "* TODO %i%?")
-															("n" "Note" entry
-															 (file+headline "~/org/gtd/inbox.org" "Notes")
-															 "* %(read-string\"Title: \") %T\n%i%?")
-															("r" "Reminder" entry
-															 (file+headline "~/org/gtd/reminders.org" "Reminders")
-															 "* %i%?\n%U")
-															("m" "Meeting minutes" entry
-															 (file+headline "~/org/meetings.org" "Meeting notes")
-															 "* Meeting title: %(read-string \"Meeting title: \")\nAttending: Jakub Cranmer, %(read-string \"Attendees: \")\nTime: %U\n\n%i%?")))
-(setq org-agenda-files '("~/org/gtd/inbox.org"
-												 "~/org/gtd/corkboard.org"
-												 "~/org/gtd/reminders.org"
-												 "~/org/timetable.org"))
-(global-set-key (kbd "C-c a") 'org-agenda)
-(setq recentf-exclude '("\\.org\\"))
-
-(setq org-todo-keywords
-			'((sequence "TODO" "PROG" "|" "DONE" "CANC")))
-
-(setq org-clock-sound "~/.emacs.d/media/digital_alarm.wav")
-(global-set-key (kbd "C-c t s") 'org-timer-set-timer)
-(global-set-key (kbd "C-c t k") 'org-timer-stop)
-(global-set-key (kbd "C-c t p") 'org-timer-pause-or-continue)
-
-(add-to-list 'org-entities-user
-						 '("oint","\\oint{}" t "&#8750" "..." "..." "∮"))
-
-(setq org-refile-targets '(("~/org/gtd/reminders.org" :maxlevel . 2)
-													 ("~/org/gtd/someday.org" :level . 1)
-													 ("~/org/gtd/corkboard.org" :maxlevel . 3)))
-
-;; Change parent task to done when all subtasks are marked as done
-(defun org-summary-todo (n-done n-not-done)
-  (let (org-log-done org-log-states)   ; turn off logging
-    (org-todo (if (= n-not-done 0) "DONE" "TODO"))))
-(add-hook 'org-after-todo-statistics-hook #'org-summary-todo)
+	(setq org-capture-templates '(("t" "Todo [inbox]" entry
+																 (file+headline "~/org/gtd/inbox.org" "Tasks")
+																 "* TODO %i%?")
+																("n" "Note" entry
+																 (file+headline "~/org/gtd/inbox.org" "Notes")
+																 "* %(read-string\"Title: \") %T\n%i%?")
+																("r" "Reminder" entry
+																 (file+headline "~/org/gtd/reminders.org" "Reminders")
+																 "* %i%?\n%U")
+																("m" "Meeting minutes" entry
+																 (file+headline "~/org/meetings.org" "Meeting notes")
+																 "* Meeting title: %(read-string \"Meeting title: \")\nAttending: Jakub Cranmer, %(read-string \"Attendees: \")\nTime: %U\n\n%i%?")))
+	(setq org-agenda-files '("~/org/gtd/inbox.org"
+													 "~/org/gtd/corkboard.org"
+													 "~/org/gtd/reminders.org"
+													 "~/org/timetable.org"))
+	(setq recentf-exclude '("\\.org\\"))
+	(setq org-todo-keywords
+				'((sequence "TODO" "PROG" "|" "DONE" "CANC")))
+	(setq org-clock-sound "~/.emacs.d/media/digital_alarm.wav")
+	(defun org-summary-todo (n-done n-not-done)
+		(let (org-log-done org-log-states)   ; turn off logging
+			(org-todo (if (= n-not-done 0) "DONE" "TODO"))))
+	(add-hook 'org-after-todo-statistics-hook #'org-summary-todo)
+	(setq org-refile-targets '(("~/org/gtd/reminders.org" :maxlevel . 2)
+														 ("~/org/gtd/someday.org" :level . 1)
+														 ("~/org/gtd/corkboard.org" :maxlevel . 3)))
+	(global-set-key (kbd "C-c c") 'org-capture)
+	(global-set-key (kbd "C-c a") 'org-agenda)
+	(global-set-key (kbd "C-c t s") 'org-timer-set-timer)
+	(global-set-key (kbd "C-c t k") 'org-timer-stop)
+	(global-set-key (kbd "C-c t p") 'org-timer-pause-or-continue)
+	(add-to-list 'org-entities-user
+							 '("oint","\\oint{}" t "&#8750" "..." "..." "∮"))
+	:hook
+	(org-mode . org-indent-mode)
+	(org-mode . (lambda ()
+								(visual-line-mode 1)))
+	(org-mode . turn-on-flyspell)
+	(org-after-todo-statistics . org-summary-todo))
 
 (load "~/.emacs.d/mail.el")
+
+(leaf citar
+	:ensure t
+  :bind (("C-c b" . citar-insert-citation)
+         (minibuffer-local-map
+					("M-b" . citar-insert-preset)))
+  :custom
+  (citar-bibliography . '("~/org/papers/references.bib")))
 
 (leaf mu4e-alert
 	:ensure t
@@ -244,14 +289,9 @@
 	(mu4e-alert-enable-mode-line-display)
 	(mu4e-alert-enable-notifications))
 
-(load "~/.emacs.d/music.el")
-
-(defun kill-dired-buffers ()
-	(interactive)
-	(mapc (lambda (buffer) 
-          (when (eq 'dired-mode (buffer-local-value 'major-mode buffer)) 
-            (kill-buffer buffer))) 
-        (buffer-list)))
+(leaf bongo
+	:ensure t
+	:defer-config (load-file "~/.emacs.d/music.el"))
 
 (leaf vterm
 	:ensure t
@@ -289,9 +329,6 @@
   (lsp-ui-peek-always-show . t)
   (lsp-ui-sideline-show-hover . t)
   (lsp-ui-doc-enable . nil))
-
-(leaf lsp-ivy
-	:ensure t)
 
 (leaf company
 	:ensure t
@@ -386,21 +423,34 @@ org roam dailies
 					 (file-relative-name (org-roam-node-file node) org-roam-directory))))
 			(error ""))))
 
-(leaf ivy
+(leaf swiper
 	:ensure t
-  :init
-  (ivy-mode 1)
-  :config
-  (setq ivy-use-virtual-buffers t)
-  (setq ivy-count-format "(%d/%d) ")
-  (setq ivy-initial-inputs-alist nil)
-	(setq ivy-re-builders-alist
-				'((t . ivy--regex-ignore-order))))
+  :bind ("C-s" . 'swiper))
 
-(leaf counsel
+(leaf vertico
 	:ensure t
+	:init
+	(vertico-mode))
+
+(leaf consult
+	:ensure t)
+
+(leaf savehist
+	:init
+	(savehist-mode))
+
+(leaf marginalia
+  :after vertico
+  :ensure t
+  :custom
+  (marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil))
   :init
-  (counsel-mode 1))
+  (marginalia-mode))
+
+(leaf orderless
+  :ensure t
+	:config
+	(setq completion-styles '(orderless)))
 
 (leaf htmlize
 	:ensure t)
@@ -413,10 +463,6 @@ org roam dailies
   :init
   (which-key-mode))
 
-(leaf swiper
-	:ensure t
-  :bind ("C-s" . 'swiper))
-
 (leaf beacon
 	:ensure t
   :diminish beacon-mode
@@ -426,20 +472,13 @@ org roam dailies
 (leaf avy
 	:ensure t
   :bind
-  ("M-s" . avy-goto-char)
-	("C-c l" . swiper-avy))
+  ("M-s" . avy-goto-char))
 
-(leaf switch-window
+(leaf ace-window
 	:ensure t
-  :config
-  (setq switch-window-input-style 'minibuffer)
-  (setq switch-window-increase 4)
-  (setq switch-window-threshold 2)
-  (setq switch-window-shortcut-style 'qwerty)
-  (setq switch-window-qwerty-shortcuts
-				'("a" "s" "d" "f" "j" "k" "l"))
-  :bind
-  ([remap other-window] . switch-window))
+	:config
+	(global-set-key (kbd "C-x o") 'ace-window)
+	(setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)))
 
 (leaf async
 	:ensure t
@@ -473,7 +512,7 @@ org roam dailies
   (doom-themes-org-config)
 	:init
 	(setq custom-safe-themes t)
-	(load-theme 'doom-homage-white))
+	(load-theme 'doom-acario-light))
 
 (leaf moody
 	:ensure t
@@ -518,23 +557,3 @@ org roam dailies
   (setq dashboard-set-init-info t)
   (setq dashboard-init-info (format "%d packages loaded in %s"
                                     (length package-activated-list) (emacs-init-time))))
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
