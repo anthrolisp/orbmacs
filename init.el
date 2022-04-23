@@ -1,3 +1,30 @@
+;;;; orbmacs --- General purpose Emacs configuration for engineers
+
+;; Copyright (c) 2022 jakub@posteo.net
+
+;; Permission is hereby granted, free of charge, to any person obtaining a copy
+;; of this software and associated documentation files (the "Software"), to deal
+;; in the Software without restriction, including without limitation the rights
+;; to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+;; copies of the Software, and to permit persons to whom the Software is
+;; furnished to do so, subject to the following conditions:
+
+;; The above copyright notice and this permission notice shall be included in all
+;; copies or substantial portions of the Software.
+
+;; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+;; IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+;; FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+;; AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+;; LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+;; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+;; SOFTWARE.
+
+;;; Commentary:
+;; Orbmacs is an Emacs configuration with a focus on org mode and "living in Emacs"
+
+;;; Code:
+
 ;; <leaf-install-code>
 (eval-and-compile
   (customize-set-variable
@@ -36,21 +63,17 @@
 (leaf emacs
 	:init
 	;; Make emacs start faster
-	(setq gc-cons-threshold 402653184
-      gc-cons-percentage 0.6)
-	
+	(setq startup/gc-cons-threshold gc-cons-threshold)
+	(setq gc-cons-threshold most-positive-fixnum)
+	(defun startup/reset-gc () (setq gc-cons-threshold startup/gc-cons-threshold))
+
 	(defvar startup/file-name-handler-alist file-name-handler-alist)
 	(setq file-name-handler-alist nil)
 
 	(defun startup/revert-file-name-handler-alist ()
 		(setq file-name-handler-alist startup/file-name-handler-alist))
 
-	(defun startup/reset-gc ()
-		(setq gc-cons-threshold 16777216
-					gc-cons-percentage 0.1))
-
 	(add-hook 'emacs-startup-hook 'startup/revert-file-name-handler-alist)
-	(add-hook 'emacs-startup-hook 'startup/reset-gc)
 
 	;; Show line numbers
 	(add-hook 'prog-mode-hook 'display-line-numbers-mode)
@@ -136,13 +159,13 @@
 
 	(defun kill-dired-buffers ()
 		(interactive)
-		(mapc (lambda (buffer) 
-						(when (eq 'dired-mode (buffer-local-value 'major-mode buffer)) 
-							(kill-buffer buffer))) 
+		(mapc (lambda (buffer)
+						(when (eq 'dired-mode (buffer-local-value 'major-mode buffer))
+							(kill-buffer buffer)))
 					(buffer-list)))
 
 	(eval-after-load "dired-aux"
-		'(add-to-list 'dired-compress-file-suffixes 
+		'(add-to-list 'dired-compress-file-suffixes
 									'("\\.zip\\'" ".zip" "unzip")))
 	(eval-after-load "dired"
 		'(define-key dired-mode-map "z" 'dired-zip-files))
@@ -152,11 +175,11 @@
 		(interactive "sEnter name of zip file: ")
 		;; create the zip file
 		(let ((zip-file (if (string-match ".zip$" zip-file) zip-file (concat zip-file ".zip"))))
-			(shell-command 
-			 (concat "zip " 
+			(shell-command
+			 (concat "zip "
 							 zip-file
 							 " "
-							 (concat-string-list 
+							 (concat-string-list
 								(mapcar
 								 '(lambda (filename)
 										(file-name-nondirectory filename))
@@ -170,9 +193,9 @@
 		;; (dired-mark-files-regexp (filename-to-regexp zip-file))
 		)
 
-	(defun concat-string-list (list) 
-		"Return a string which is a concatenation of all elements of the list separated by spaces" 
-    (mapconcat '(lambda (obj) (format "%s" obj)) list " ")) 
+	(defun concat-string-list (list)
+		"Return a string which is a concatenation of all elements of the list separated by spaces"
+    (mapconcat '(lambda (obj) (format "%s" obj)) list " "))
 
 	(require 'cl-lib)
 
@@ -187,7 +210,7 @@
 
 (leaf eshell
 	:defer-config
-		;; Eshell
+	;; Eshell
 	(setq eshell-prompt-regexp "^[^αλ\n]*[αλ] ")
 	(setq eshell-prompt-function
 				(lambda nil
@@ -229,7 +252,7 @@
 (leaf org
 	:ensure t
 	:config
-(setq org-pretty-entities t)
+	(setq org-pretty-entities t)
 	(setq org-capture-templates '(("t" "Todo [inbox]" entry
 																 (file+headline "~/org/gtd/inbox.org" "Tasks")
 																 "* TODO %i%?")
@@ -271,8 +294,6 @@
 	(org-mode . turn-on-flyspell)
 	(org-after-todo-statistics . org-summary-todo))
 
-(load "~/.emacs.d/mail.el")
-
 (leaf citar
 	:ensure t
   :bind (("C-c b" . citar-insert-citation)
@@ -281,17 +302,46 @@
   :custom
   (citar-bibliography . '("~/org/papers/references.bib")))
 
+(load "~/.emacs.d/mail.el")
+
 (leaf mu4e-alert
 	:ensure t
+	:after mu4e
 	:config
 	(mu4e-alert-set-default-style 'libnotify)
-	:init
 	(mu4e-alert-enable-mode-line-display)
 	(mu4e-alert-enable-notifications))
 
 (leaf bongo
 	:ensure t
-	:defer-config (load-file "~/.emacs.d/music.el"))
+	:defer-config (load-file "~/.emacs.d/music.el")
+	:bind
+	(("<C-XF86AudioPlay>" . bongo-pause/resume)
+   ("<C-XF86AudioNext>" . bongo-next)
+   ("<C-XF86AudioPrev>" . bongo-previous)
+   ("<M-XF86AudioPlay>" . bongo-show)
+   ("<S-XF86AudioNext>" . bongo-seek-forward-10)
+   ("<S-XF86AudioPrev>" . bongo-seek-backward-10)
+	 ("C-c p"             . bongo)
+	 (bongo-playlist-mode-map
+		("n" . bongo-next-object)
+		("p" . bongo-previous-object)
+		("M-n" . prot/bongo-paylist-section-next)
+		("M-p" . prot/bongo-paylist-section-previous)
+		("M-h" . prot/bongo-playlist-mark-section)
+		("M-d" . prot/bongo-playlist-kill-section)
+		("g" . prot/bongo-playlist-reset)
+		("D" . prot/bongo-playlist-terminate)
+		("r" . prot/bongo-playlist-random-toggle)
+		("R" . bongo-rename-line)
+		("j" . bongo-dired-line)       ; Jump to dir of file at point
+		("J" . dired-jump)             ; Jump to library buffer
+		("i" . prot/bongo-playlist-insert-playlist-file)
+		("I" . bongo-insert-special))
+	 (bongo-dired-library-mode-map
+		("<C-return>" . prot/bongo-dired-insert)
+		("C-c SPC" . prot/bongo-dired-insert)
+		("C-c +" . prot/bongo-dired-make-playlist-file))))
 
 (leaf vterm
 	:ensure t
@@ -360,68 +410,8 @@
 				 ("C-c n i" . org-roam-node-insert)
 				 ("C-c n I" . org-roam-node-insert-immediate)
 				 ("C-c n c" . org-roam-capture))
-	:init
-	(defhydra hydra-dailies (:hint nil :exit t)
-		"
-org roam dailies
-
-[_j_]: capture today        [_J_]: goto today
-[_y_]: capture yesterday    [_Y_]: goto yesterday
-[_d_]: capture date         [_D_]: goto date
-
-"
-		("j" org-roam-dailies-capture-today)
-		("J" org-roam-dailies-goto-today)
-		("y" org-roam-dailies-capture-yesterday)
-		("Y" org-roam-dailies-goto-yesterday)
-		("d" org-roam-dailies-capture-date)
-		("D" org-roam-dailies-goto-date)
-		("q" nil "abort"))
-	(global-set-key (kbd "C-c n d") 'hydra-dailies/body)
 	:config
-	(setq org-roam-completion-everywhere t)
-	(setq org-roam-dailies-directory "~/RoamNotes/daily/")
-	(setq org-roam-node-display-template
-				(concat "${type:15} ${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
-  (org-roam-db-autosync-mode)
-
-	(defun org-roam-node-insert-immediate (arg &rest args)
-		(interactive "P")
-		(let ((args (cons arg args))
-					(org-roam-capture-templates (list (append (car org-roam-capture-templates)
-																										'(:immediate-finish t)))))
-			(apply #'org-roam-node-insert args)))
-
-	(setq org-roam-dailies-capture-templates
-				'(("d" "default" entry "* %<%R>\n%?"
-					 :if-new (file+head "%<%Y-%m-%d>.org" "#+title: %<%Y-%m-%d>\n"))))
-	
-	(setq org-roam-capture-templates
-				'(("m" "main" plain
-					 "%?"
-					 :if-new (file+head "main/${slug}.org"
-															"#+title: ${title}\n")
-					 :immediate-finish t
-					 :unnarrowed t)
-					("r" "reference" plain "%?"
-					 :if-new
-					 (file+head "reference/${title}.org" "#+title: ${title}\n")
-					 :immediate-finish t
-					 :unnarrowed t)
-					("u" "university" plain
-					 "%?"
-					 :if-new (file+head "university/${slug}.org" "#+title: ${title}\n")
-					 :immediate-finish t
-					 :unarrowed t)))
-	
-	(cl-defmethod org-roam-node-type ((node org-roam-node))
-		"Return the TYPE of NODE."
-		(condition-case nil
-				(file-name-nondirectory
-				 (directory-file-name
-					(file-name-directory
-					 (file-relative-name (org-roam-node-file node) org-roam-directory))))
-			(error ""))))
+	(load-file "~/.emacs.d/roam.el"))
 
 (leaf swiper
 	:ensure t
@@ -450,6 +440,7 @@ org roam dailies
 
 (leaf orderless
   :ensure t
+	:after vertico
 	:config
 	(setq completion-styles '(orderless)))
 
@@ -558,3 +549,6 @@ org roam dailies
   (setq dashboard-set-init-info t)
   (setq dashboard-init-info (format "%d packages loaded in %s"
                                     (length package-activated-list) (emacs-init-time))))
+
+(provide 'init)
+;;; init.el ends here
