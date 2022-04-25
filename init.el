@@ -506,7 +506,7 @@
   (doom-themes-org-config)
 	:init
 	(setq custom-safe-themes t)
-	(load-theme 'doom-acario-light))
+	(load-theme 'doom-solarized-light))
 
 (leaf moody
 	:ensure t
