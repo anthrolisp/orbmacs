@@ -428,7 +428,9 @@
 
 (leaf savehist
 	:init
-	(savehist-mode))
+	(savehist-mode)
+	:config
+	(setq savehist-additional-variables '(search-ring regexp-search-ring kill-ring)))
 
 (leaf marginalia
   :after vertico
