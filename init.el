@@ -2,11 +2,11 @@
 
 ;; Copyright (c) 2022 jakub@posteo.net
 
-;; Permission is hereby granted, free of charge, to any person obtaining a copy
-;; of this software and associated documentation files (the "Software"), to deal
-;; in the Software without restriction, including without limitation the rights
+;; permission is hereby granted, free of charge, to any person obtaining a copy
+;; of this software and associated documentation files (the "software"), to deal
+;; in the software without restriction, including without limitation the rights
 ;; to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-;; copies of the Software, and to permit persons to whom the Software is
+;; copies of the software, and to permit persons to whom the software is
 ;; furnished to do so, subject to the following conditions:
 
 ;; The above copyright notice and this permission notice shall be included in all
@@ -261,7 +261,7 @@
 																 "* %(read-string\"Title: \") %T\n%i%?")
 																("r" "Reminder" entry
 																 (file+headline "~/org/gtd/reminders.org" "Reminders")
-																 "* %i%?\n%U")
+																 "* TODO %i%?\n%U")
 																("m" "Meeting minutes" entry
 																 (file+headline "~/org/meetings.org" "Meeting notes")
 																 "* Meeting title: %(read-string \"Meeting title: \")\nAttending: Jakub Cranmer, %(read-string \"Attendees: \")\nTime: %U\n\n%i%?")))
@@ -271,7 +271,7 @@
 													 "~/org/timetable.org"))
 	(setq recentf-exclude '("\\.org\\"))
 	(setq org-todo-keywords
-				'((sequence "TODO" "PROG" "|" "DONE" "CANC")))
+				'((sequence "TODO" "|" "DONE" "CANC")))
 	(setq org-clock-sound "~/.emacs.d/media/digital_alarm.wav")
 	(defun org-summary-todo (n-done n-not-done)
 		(let (org-log-done org-log-states)   ; turn off logging
@@ -425,6 +425,19 @@
 
 (leaf consult
 	:ensure t)
+
+(leaf consult-org-roam
+	:ensure t
+	:init
+	(consult-org-roam-mode 1)
+	:config
+	(consult-customize
+	 consult-org-roam-forward-links
+	 :preview-key (kbd "M-."))
+	:bind
+	("C-c n e" . consult-org-roam-file-find)
+	("C-c n b" . consult-org-roam-backlinks)
+	("C-c n r" . consult-org-roam-search))
 
 (leaf savehist
 	:init

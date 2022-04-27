@@ -6,7 +6,7 @@ Orbmacs is an Emacs configuration featuring:
 - Declarative package management (leaf.el)
 - Zettelkasten (org roam)
 - Journalling (org roam)
-- Completion features (vertico, company-mode)
+- Completion features (vertico, consult, company-mode)
 - IDE (lsp-mode)
 - Advanced movement (avy)
 - Email (mu4e)
