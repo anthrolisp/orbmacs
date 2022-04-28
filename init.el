@@ -40,7 +40,6 @@
     :init
     ;; optional packages if you want to use :hydra, :el-get, :blackout,,,
     (leaf hydra :ensure t)
-		;; (leaf el-get :ensure t)
     (leaf blackout :ensure t)
     :config
     ;; initialize leaf-keywords.el
@@ -201,7 +200,11 @@
 
 	(setq inferior-lisp-program "sbcl")
 
-	(setq enable-recursive-minibuffers t))
+	(setq enable-recursive-minibuffers t)
+
+	;; Hitting suspend frame by accident is annoying me
+	(global-set-key (kbd "C-z") nil)
+	(global-set-key (kbd "C-x C-z") nil))
 
 (leaf octave
 	:config
@@ -210,7 +213,6 @@
 
 (leaf eshell
 	:defer-config
-	;; Eshell
 	(setq eshell-prompt-regexp "^[^αλ\n]*[αλ] ")
 	(setq eshell-prompt-function
 				(lambda nil
@@ -362,23 +364,32 @@
 	:ensure t
   :if (display-graphic-p))
 
-(leaf lsp-mode
-	:ensure t
-  :commands lsp
-  :custom
-  (lsp-eldoc-render-all . t)
-  (lsp-idle-delay . 0.6)
-  ;; enable / disable the hints as you prefer:
-  :hook
-  (lsp-mode-hook . lsp-ui-mode))
+;; (leaf lsp-mode
+;; 	:ensure t
+;;   :commands lsp
+;;   :custom
+;;   (lsp-eldoc-render-all . t)
+;;   (lsp-idle-delay . 0.6)
+;;   ;; enable / disable the hints as you prefer:
+;;   :hook
+;;   (lsp-mode-hook . lsp-ui-mode))
 
-(leaf lsp-ui
+;; (leaf lsp-ui
+;; 	:ensure t
+;;   :commands lsp-ui-mode
+;;   :custom
+;;   (lsp-ui-peek-always-show . t)
+;;   (lsp-ui-sideline-show-hover . t)
+;;   (lsp-ui-doc-enable . nil))
+
+(leaf eglot
 	:ensure t
-  :commands lsp-ui-mode
-  :custom
-  (lsp-ui-peek-always-show . t)
-  (lsp-ui-sideline-show-hover . t)
-  (lsp-ui-doc-enable . nil))
+	:hook ((c-mode-hook c++-mode-hook python-mode-hook) . eglot-ensure)
+	:config
+	(add-to-list 'exec-path (expand-file-name "~/.local/bin/"))
+	(add-to-list 'eglot-server-programs '((c++-mode c-mode) . ("ccls")))
+	(add-to-list 'eglot-server-programs '(python-mode . ("pylsp"))))
+
 
 (leaf company
 	:ensure t
@@ -438,6 +449,30 @@
 	("C-c n e" . consult-org-roam-file-find)
 	("C-c n b" . consult-org-roam-backlinks)
 	("C-c n r" . consult-org-roam-search))
+
+
+(leaf embark
+	:ensure t
+	:bind
+	(("C-." . embark-act)         ;; pick some comfortable binding
+	 ("C-;" . embark-dwim)        ;; good alternative: M-.
+	 ("C-h b" . embark-bindings)) ;; alternative for `describe-bindings'
+	:init
+	;; Optionally replace the key help with a completing-read interface
+	(setq prefix-help-command #'embark-prefix-help-command)
+	:config
+	;; Hide the mode line of the Embark live/completions buffers
+	(add-to-list 'display-buffer-alist
+							 '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+								 nil
+								 (window-parameters (mode-line-format . none)))))
+
+(leaf embark-consult
+	:ensure t
+	:after (embark consult)
+	:leaf-defer nil
+	:hook
+	(embark-collect-mode . consult-preview-at-point-mode))
 
 (leaf savehist
 	:init
