@@ -7,7 +7,7 @@ Orbmacs is an Emacs configuration featuring:
 - Zettelkasten (org roam)
 - Journalling (org roam)
 - Completion features (vertico, consult, company-mode)
-- IDE (lsp-mode)
+- IDE (eglot/lsp-mode)
 - Advanced movement (avy)
 - Email (mu4e)
   - Emails alerts in modeline and as notification (mu4e-alert)

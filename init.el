@@ -46,18 +46,18 @@
     (leaf-keywords-init)))
 ;; </leaf-install-code>
 
-;; (defvar bootstrap-version)
-;; (let ((bootstrap-file
-;;        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-;;       (bootstrap-version 5))
-;;   (unless (file-exists-p bootstrap-file)
-;;     (with-current-buffer
-;;         (url-retrieve-synchronously
-;;          "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-;;          'silent 'inhibit-cookies)
-;;       (goto-char (point-max))
-;;       (eval-print-last-sexp)))
-;;   (load bootstrap-file nil 'nomessage))
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 5))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+        (url-retrieve-synchronously
+         "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+         'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
 
 (leaf emacs
 	:init
@@ -71,12 +71,6 @@
 
 	(defun startup/revert-file-name-handler-alist ()
 		(setq file-name-handler-alist startup/file-name-handler-alist))
-
-	(add-hook 'emacs-startup-hook 'startup/revert-file-name-handler-alist)
-
-	;; Show line numbers
-	(add-hook 'prog-mode-hook 'display-line-numbers-mode)
-	(add-hook 'text-mode-hook 'display-line-numbers-mode)
 
 	;; Show parent brackets
 	(show-paren-mode 1)
@@ -147,14 +141,10 @@
 	(global-hl-line-mode t)
 
 	(set-face-attribute 'default nil
-											:family "Hack Nerd Regular"
+											:family "FiraMono Nerd Font"
 											:height 100
 											:weight 'normal
 											:width 'normal)
-
-	;; Aliases
-	(defalias 'open 'find-file-other-window)
-	(defalias 'clean 'eshell/clear-scrollback)
 
 	(defun kill-dired-buffers ()
 		(interactive)
@@ -201,10 +191,14 @@
 	(setq inferior-lisp-program "sbcl")
 
 	(setq enable-recursive-minibuffers t)
-
+	:bind
 	;; Hitting suspend frame by accident is annoying me
-	(global-set-key (kbd "C-z") nil)
-	(global-set-key (kbd "C-x C-z") nil))
+	("C-z" . nil)
+	("C-x C-z" . nil)
+	:hook
+	(emacs-startup-hook . startup/revert-file-name-handler-alist)
+	(prog-mode-hook . display-line-numbers-mode)
+	(text-mode-hook . display-line-numbers-mode))
 
 (leaf octave
 	:config
@@ -229,6 +223,10 @@
 
 	(setq eshell-highlight-prompt nil)
 
+	;; Aliases
+	(defalias 'open 'find-file-other-window)
+	(defalias 'clean 'eshell/clear-scrollback)
+
 	(defun eshell/sudo-open (filename)
 		"Open a file (FILENAME) as root in Eshell."
 		(let ((qual-filename (if (string-match "^/" filename)
@@ -247,13 +245,14 @@
 					(other-window 1)
 					(eshell))
 			(switch-to-buffer-other-window "*eshell*")))
-
-	(global-set-key (kbd "<s-C-return>") 'eshell-other-window)
-	(global-set-key (kbd "C-c e") 'eshell))
+	:bind
+	("<s-C-return>" . eshell-other-window)
+	("C-c e" . eshell))
 
 (leaf org
 	:ensure t
 	:config
+	(setq sentence-end-double-space nil)
 	(setq org-pretty-entities t)
 	(setq org-capture-templates '(("t" "Todo [inbox]" entry
 																 (file+headline "~/org/gtd/inbox.org" "Tasks")
@@ -266,7 +265,7 @@
 																 "* TODO %i%?\n%U")
 																("m" "Meeting minutes" entry
 																 (file+headline "~/org/meetings.org" "Meeting notes")
-																 "* Meeting title: %(read-string \"Meeting title: \")\nAttending: Jakub Cranmer, %(read-string \"Attendees: \")\nTime: %U\n\n%i%?")))
+																 "* Meeting title: %(read-string \"Meeting title: \")\nAttending: %(read-string \"Attendees: \")\nTime: %U\n\n%i%?")))
 	(setq org-agenda-files '("~/org/gtd/inbox.org"
 													 "~/org/gtd/corkboard.org"
 													 "~/org/gtd/reminders.org"
@@ -275,25 +274,26 @@
 	(setq org-todo-keywords
 				'((sequence "TODO" "|" "DONE" "CANC")))
 	(setq org-clock-sound "~/.emacs.d/media/digital_alarm.wav")
+
 	(defun org-summary-todo (n-done n-not-done)
 		(let (org-log-done org-log-states)   ; turn off logging
 			(org-todo (if (= n-not-done 0) "DONE" "TODO"))))
-	(add-hook 'org-after-todo-statistics-hook #'org-summary-todo)
+
 	(setq org-refile-targets '(("~/org/gtd/reminders.org" :maxlevel . 2)
 														 ("~/org/gtd/someday.org" :level . 1)
 														 ("~/org/gtd/corkboard.org" :maxlevel . 3)))
-	(global-set-key (kbd "C-c c") 'org-capture)
-	(global-set-key (kbd "C-c a") 'org-agenda)
-	(global-set-key (kbd "C-c t s") 'org-timer-set-timer)
-	(global-set-key (kbd "C-c t k") 'org-timer-stop)
-	(global-set-key (kbd "C-c t p") 'org-timer-pause-or-continue)
 	(add-to-list 'org-entities-user
 							 '("oint","\\oint{}" t "&#8750" "..." "..." "∮"))
+	:bind
+	("C-c c" . org-capture)
+	("C-c a" . org-agenda)
+	("C-c t s" . org-timer-set-timer)
+	("C-c t k" . org-timer-stop)
+	("C-c t p" . org-timer-pause-or-continue)
 	:hook
-	(org-mode . org-indent-mode)
-	(org-mode . (lambda ()
-								(visual-line-mode 1)))
-	(org-mode . turn-on-flyspell)
+	(org-mode-hook . flyspell-mode)
+	(org-mode-hook . org-indent-mode)
+	(org-mode-hook . visual-line-mode)
 	(org-after-todo-statistics . org-summary-todo))
 
 (leaf citar
@@ -542,27 +542,68 @@
 	:ensure t
   :diminish eldoc-mode)
 
-(leaf doom-themes
-  :ensure t
-  :config
-  ;; Global settings (defaults)
-  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-        doom-themes-enable-italic t) ; if nil, italics is universally disabled
-  ;; Enable flashing mode-line on errors
-  (doom-themes-visual-bell-config)
-  ;; Corrects (and improves) org-mode's native fontification.
-  (doom-themes-org-config)
-	:init
-	(setq custom-safe-themes t)
-	(load-theme 'doom-solarized-light))
+;; (leaf doom-themes
+;;   :ensure t
+;;   :config
+;;   ;; Global settings (defaults)
+;;   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+;;         doom-themes-enable-italic t) ; if nil, italics is universally disabled
+;;   ;; Enable flashing mode-line on errors
+;;   (doom-themes-visual-bell-config)
+;;   ;; Corrects (and improves) org-mode's native fontification.
+;;   (doom-themes-org-config)
+;; 	:init
+;; 	(setq custom-safe-themes t)
+;; 	(load-theme 'doom-solarized-light))
 
-(leaf moody
+(leaf rainbow-delimiters
 	:ensure t
-  :init
-  (setq x-underline-at-descent-line t)
-  (moody-replace-mode-line-buffer-identification)
-  (moody-replace-vc-mode)
-  (moody-replace-eldoc-minibuffer-message-function))
+	:hook
+	(prog-mode-hook . rainbow-delimiters-mode))
+
+(leaf leaf
+	:ensure t
+  :straight (lambda-line :type git :host github :repo "lambda-emacs/lambda-line")
+  :custom
+  (lambda-line-position . 'bottom) ;; Set position of status-line
+  (lambda-line-abbrev . t) ;; abbreviate major modes
+  (lambda-line-hspace . "  ")  ;; add some cushion
+  (lambda-line-prefix . t) ;; use a prefix symbol
+  (lambda-line-prefix-padding . nil) ;; no extra space for prefix
+  (lambda-line-status-invert . nil)  ;; no invert colors
+  (lambda-line-gui-ro-symbol . " ⨂") ;; symbols
+  (lambda-line-gui-mod-symbol . " ⬤")
+  (lambda-line-gui-rw-symbol . " ◯")
+  (lambda-line-space-top . +.25)  ;; padding on top and bottom of line
+  (lambda-line-space-bottom . -.25)
+  (lambda-line-symbol-position . 0.1) ;; adjust the vertical placement of symbol
+  :config
+	(customize-set-variable 'flymake-mode-line-counter-format '("" flymake-mode-line-error-counter flymake-mode-line-warning-counter flymake-mode-line-note-counter ""))
+	(customize-set-variable 'flymake-mode-line-format '(" " flymake-mode-line-exception flymake-mode-line-counters))
+  ;; activate lambda-line
+  (lambda-line-mode)
+  ;; set divider line in footer
+  (when (eq lambda-line-position 'top)
+   (setq-default mode-line-format (list "%_"))
+   (setq mode-line-format (list "%_"))))
+
+(leaf leaf
+  :straight (lambda-themes :type git :host github :repo "lambda-emacs/lambda-themes")
+  :custom
+  (lambda-themes-set-italic-comments . t)
+  (lambda-themes-set-italic-keywords . t)
+  (lambda-themes-set-variable-pitch . t)
+  :config
+	(setq custom-safe-themes t)
+  (load-theme 'lambda-light-faded))
+
+;; (leaf moody
+;; 	:ensure t
+;;   :init
+;;   (setq x-underline-at-descent-line t)
+;;   (moody-replace-mode-line-buffer-identification)
+;;   (moody-replace-vc-mode)
+;;   (moody-replace-eldoc-minibuffer-message-function))
 
 ;; (leaf minions
 ;; 	:ensure t
@@ -591,9 +632,12 @@
 													(bookmarks . 9)))
   (add-to-list 'dashboard-items '(agenda) t)
   (setq deashboard-week-agenda t)
-  (setq dashboard-banner-logo-title "O R B M A C S")
+  (setq dashboard-banner-logo-title "Welcome to Orbmacs.")
   (setq dashboard-startup-banner "~/.emacs.d/media/orb.png")
+	;; (setq dash-board-startup-banner 'official)
   (setq dashboard-center-content t)
+	;; (setq dashboard-set-heading-icons t)
+	;; (setq dashboard-set-file-icons t)
   ;; (setq dashboard-show-shortcuts nil)
   (setq dashboard-set-footer nil)
   (setq dashboard-set-init-info t)
