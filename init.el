@@ -129,7 +129,7 @@
 	(global-set-key (kbd "C-x 3") 'split-and-follow-vertically)
 
 	;; Turn yes-or-no to y-or-n
-	(defalias 'yes-or-no-p 'y-or-n-p)
+	(setq use-short-answers t)
 
 	;; Rebind keys for resizing
 	(global-set-key (kbd "s-C-<left>") 'shrink-window-horizontally)
@@ -145,42 +145,6 @@
 											:height 100
 											:weight 'normal
 											:width 'normal)
-
-	(defun kill-dired-buffers ()
-		(interactive)
-		(mapc (lambda (buffer)
-						(when (eq 'dired-mode (buffer-local-value 'major-mode buffer))
-							(kill-buffer buffer)))
-					(buffer-list)))
-
-	(eval-after-load "dired-aux"
-		'(add-to-list 'dired-compress-file-suffixes
-									'("\\.zip\\'" ".zip" "unzip")))
-	(eval-after-load "dired"
-		'(define-key dired-mode-map "z" 'dired-zip-files))
-
-	(defun dired-zip-files (zip-file)
-		"Create an archive containing the marked files."
-		(interactive "sEnter name of zip file: ")
-		;; create the zip file
-		(let ((zip-file (if (string-match ".zip$" zip-file) zip-file (concat zip-file ".zip"))))
-			(shell-command
-			 (concat "zip "
-							 zip-file
-							 " "
-							 (concat-string-list
-								(mapcar
-								 '(lambda (filename)
-										(file-name-nondirectory filename))
-								 (dired-get-marked-files))))))
-
-		(revert-buffer)
-
-		;; remove the mark on all the files  "*" to " "
-		;; (dired-change-marks 42 ?\040)
-		;; mark zip file
-		;; (dired-mark-files-regexp (filename-to-regexp zip-file))
-		)
 
 	(defun concat-string-list (list)
 		"Return a string which is a concatenation of all elements of the list separated by spaces"
@@ -201,11 +165,13 @@
 	(text-mode-hook . display-line-numbers-mode))
 
 (leaf octave
-	:config
+	:leaf-defer t
+	:defer-config
 	(setq octave-comment-char ?%)
 	(add-to-list 'auto-mode-alist '("\\.m\\'" . octave-mode)))
 
 (leaf eshell
+	:leaf-defer t
 	:defer-config
 	(setq eshell-prompt-regexp "^[^αλ\n]*[αλ] ")
 	(setq eshell-prompt-function
@@ -249,9 +215,56 @@
 	("<s-C-return>" . eshell-other-window)
 	("C-c e" . eshell))
 
+(leaf dired
+	:defer-config
+		(defun kill-dired-buffers ()
+		(interactive)
+		(mapc (lambda (buffer)
+						(when (eq 'dired-mode (buffer-local-value 'major-mode buffer))
+							(kill-buffer buffer)))
+					(buffer-list)))
+
+	(eval-after-load "dired-aux"
+		'(add-to-list 'dired-compress-file-suffixes
+									'("\\.zip\\'" ".zip" "unzip")))
+	(eval-after-load "dired"
+		'(define-key dired-mode-map "z" 'dired-zip-files))
+
+	(defun dired-zip-files (zip-file)
+		"Create an archive containing the marked files."
+		(interactive "sEnter name of zip file: ")
+		;; create the zip file
+		(let ((zip-file (if (string-match ".zip$" zip-file) zip-file (concat zip-file ".zip"))))
+			(shell-command
+			 (concat "zip "
+							 zip-file
+							 " "
+							 (concat-string-list
+								(mapcar
+								 '(lambda (filename)
+										(file-name-nondirectory filename))
+								 (dired-get-marked-files))))))
+
+		(revert-buffer)
+
+		;; remove the mark on all the files  "*" to " "
+		;; (dired-change-marks 42 ?\040)
+		;; mark zip file
+		;; (dired-mark-files-regexp (filename-to-regexp zip-file))
+		)
+	)
+
+(leaf dired-narrow
+	:leaf-defer t
+	:ensure t
+	:bind ((dired-mode-map
+					:package dired
+					("/" . dired-narrow))))
+
 (leaf org
 	:ensure t
-	:config
+	:leaf-defer t
+	:defer-config
 	(setq sentence-end-double-space nil)
 	(setq org-pretty-entities t)
 	(setq org-capture-templates '(("t" "Todo [inbox]" entry
@@ -298,13 +311,23 @@
 
 (leaf citar
 	:ensure t
+	:leaf-defer t
   :bind (("C-c b" . citar-insert-citation)
          (minibuffer-local-map
 					("M-b" . citar-insert-preset)))
   :custom
-  (citar-bibliography . '("~/org/papers/references.bib")))
+  (citar-bibliography . '("~/org/papers/references.bib"))
+	:defer-config
+	(advice-add #'completing-read-multiple :override #'consult-completing-read-multiple)
+	(setq citar-at-point-function 'embark-act))
 
-(load "~/.emacs.d/mail.el")
+(leaf mu4e
+	:leaf-defer t
+	:bind
+	("C-c m" . mu4e)
+	("C-c M" . mu4e-other-window)
+	:defer-config
+	(load "~/.emacs.d/mail.el"))
 
 (leaf mu4e-alert
 	:ensure t
@@ -314,8 +337,25 @@
 	(mu4e-alert-enable-mode-line-display)
 	(mu4e-alert-enable-notifications))
 
+;; (leaf elfeed
+;; 	:ensure t
+;; 	:leaf-defer t
+;; 	:defer-config
+;; 	(setq elfeed-feeds
+;; 				'(
+;; 					;; emacs
+;; 					("https://masteringemacs.org/feed" MasteringEmacs)
+;; 					("https://www.reddit.com/r/emacs.rss" r/emacs)
+;; 					("https://emacsredux.com/atom.xml" EmacsRedux)
+;; 					("https://www.sciencedaily.com/rss/top/science.xml" DailySci)
+;; 					("https://www.sciencedaily.com/rss/top/technology.xml" DailyTech)
+;; 					))
+;; 	:bind
+;; 	("C-c f" . elfeed))
+
 (leaf bongo
 	:ensure t
+	:leaf-defer t
 	:defer-config (load-file "~/.emacs.d/music.el")
 	:bind
 	(("<C-XF86AudioPlay>" . bongo-pause/resume)
@@ -347,15 +387,18 @@
 
 (leaf vterm
 	:ensure t
+	:leaf-defer t
   :config
   (setq vterm-timer-delay 0.01)
 	(global-set-key (kbd "C-c v") 'vterm))
 
 (leaf slime
-	:ensure t)
+	:ensure t
+	:leaf-defer t)
 
 (leaf slime-company
 	:ensure t
+	:leaf-defer t
   :after (slime company)
   :config (setq slime-company-completion 'fuzzy
                 slime-company-after-completion 'slime-company-just-one-space))
@@ -363,6 +406,13 @@
 (leaf all-the-icons
 	:ensure t
   :if (display-graphic-p))
+
+(leaf all-the-icons-dired
+	:ensure t
+	:if (display-graphic-p)
+	:leaf-defer t
+	:commands all-the-icons-dired-mode
+	:hook (dired-mode-hook . all-the-icons-dired-mode))
 
 ;; (leaf lsp-mode
 ;; 	:ensure t
@@ -384,6 +434,7 @@
 
 (leaf eglot
 	:ensure t
+	:leaf-defer
 	:hook ((c-mode-hook c++-mode-hook python-mode-hook) . eglot-ensure)
 	:config
 	(add-to-list 'exec-path (expand-file-name "~/.local/bin/"))
@@ -439,8 +490,8 @@
 
 (leaf consult-org-roam
 	:ensure t
-	:init
-	(consult-org-roam-mode 1)
+	;; :init
+	;; (consult-org-roam-mode 1)
 	:config
 	(consult-customize
 	 consult-org-roam-forward-links
@@ -448,7 +499,9 @@
 	:bind
 	("C-c n e" . consult-org-roam-file-find)
 	("C-c n b" . consult-org-roam-backlinks)
-	("C-c n r" . consult-org-roam-search))
+	("C-c n r" . consult-org-roam-search)
+	:hook
+	(org-mode-hook . consult-org-roam-mode))
 
 
 (leaf embark
@@ -536,7 +589,8 @@
   :diminish undo-tree-mode)
 
 (leaf magit
-	:ensure t)
+	:ensure t
+	:leaf-defer)
 
 (leaf eldoc
 	:ensure t
@@ -574,8 +628,8 @@
   (lambda-line-gui-ro-symbol . " ⨂") ;; symbols
   (lambda-line-gui-mod-symbol . " ⬤")
   (lambda-line-gui-rw-symbol . " ◯")
-  (lambda-line-space-top . +.25)  ;; padding on top and bottom of line
-  (lambda-line-space-bottom . -.25)
+  (lambda-line-space-top . +.1)  ;; padding on top and bottom of line
+  (lambda-line-space-bottom . -.1)
   (lambda-line-symbol-position . 0.1) ;; adjust the vertical placement of symbol
   :config
 	(customize-set-variable 'flymake-mode-line-counter-format '("" flymake-mode-line-error-counter flymake-mode-line-warning-counter flymake-mode-line-note-counter ""))
@@ -596,6 +650,9 @@
   :config
 	(setq custom-safe-themes t)
   (load-theme 'lambda-light-faded))
+	;; (custom-set-faces
+	;;  '(elfeed-search-unread-title-face ((t (:foreground "#282b35"))))
+	;;  '(table-cell ((t (:background "#fcfaf6" :foreground "#282b35" :inverse-video nil))))))
 
 ;; (leaf moody
 ;; 	:ensure t
@@ -630,11 +687,11 @@
 	(setq inhibit-startup-message t)
   (setq dashboard-items '((recents . 5)
 													(bookmarks . 9)))
-  (add-to-list 'dashboard-items '(agenda) t)
-  (setq deashboard-week-agenda t)
+  ;; (add-to-list 'dashboard-items '(agenda) t)
+  ;; (setq deashboard-week-agenda t)
   (setq dashboard-banner-logo-title "Welcome to Orbmacs.")
-  (setq dashboard-startup-banner "~/.emacs.d/media/orb.png")
-	;; (setq dash-board-startup-banner 'official)
+  ;; (setq dashboard-startup-banner "~/.emacs.d/media/orb.png")
+	(setq dash-board-startup-banner 'official)
   (setq dashboard-center-content t)
 	;; (setq dashboard-set-heading-icons t)
 	;; (setq dashboard-set-file-icons t)

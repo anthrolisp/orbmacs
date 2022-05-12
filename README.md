@@ -8,6 +8,7 @@ Orbmacs is an Emacs configuration featuring:
 - Journalling (org roam)
 - Completion features (vertico, consult, company-mode)
 - IDE (eglot/lsp-mode)
+- Git porcelain (magit)
 - Advanced movement (avy)
 - Email (mu4e)
   - Emails alerts in modeline and as notification (mu4e-alert)
@@ -16,7 +17,6 @@ Orbmacs is an Emacs configuration featuring:
 - Better window switching (ace-window)
 - Better in-document search (swiper)
 - Customized splash screen (dashboard)
-- Git porcelain (magit)
 - Dired commands to zip and unzip files
 - Org mode improvements for writing
 - Other useful bits and pieces
