@@ -47,7 +47,7 @@ To view a range of help options, key in `C-h ?` or simply `M-x help`. Alternativ
 
 I'm currently using the "getting things done" (GTD) method of organisation. If you do not like GTD, remove the parts relating to it in: agenda files, refile targets, and capture templates.
 
-I'm using the "Hack" font available from NerdFonts. If you do not have this font or do not wish to use it, please change it to something else or comment out the setting to use the default.
+I'm using the "FiraMono" font available from NerdFonts. If you do not have this font or do not wish to use it, please change it to something else or comment out the setting to use the default.
 
 I'm using leaf to manage my Emacs packages. If you prefer use-package, it's very quick and easy to change it over.
 
