@@ -1,6 +1,6 @@
 # Orbmacs
 
-![O R B](https://github.com/kvvba/orbmacs/blob/ed9e8d190ea64375a8bc5af083aae321d57975c7/logo/orb.png?raw=true)
+![O R B](https://github.com/kvvba/orbmacs/blob/81cb744b1f9fe0aa2bb5ca9142e2f1cb602d2571/media/sicp.png)
 
 Orbmacs is an Emacs configuration featuring:
 - Declarative package management (leaf.el)
