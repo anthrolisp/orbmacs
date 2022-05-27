@@ -3,6 +3,7 @@
 ![O R B](https://github.com/kvvba/orbmacs/blob/81cb744b1f9fe0aa2bb5ca9142e2f1cb602d2571/media/sicp.png)
 
 Orbmacs is an Emacs configuration featuring:
+- Modal editing (meow)
 - Declarative package management (leaf.el)
 - Zettelkasten (org roam)
 - Journalling (org roam)
