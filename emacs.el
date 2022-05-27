@@ -252,7 +252,16 @@
 		;; mark zip file
 		;; (dired-mark-files-regexp (filename-to-regexp zip-file))
 		)
+	:bind
+	("C-c d" . dired)
 	)
+
+(leaf meow
+	:ensure t
+	:init
+	(load-file "~/.emacs.d/meow.el")
+	(meow-setup)
+	(meow-global-mode t))
 
 (leaf dired-narrow
 	:leaf-defer t
@@ -326,8 +335,10 @@
 (leaf mu4e
 	:leaf-defer t
 	:bind
-	("C-c m" . mu4e)
-	("C-c M" . mu4e-other-window)
+	("C-c z" . mu4e)
+	("C-c Z" . mu4e-other-window)
+	(mu4e-main-mode-map
+	 ("e" . kill-current-buffer))
 	:defer-config
 	(load "~/.emacs.d/mail.el"))
 
