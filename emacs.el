@@ -142,9 +142,10 @@
 
 	(set-face-attribute 'default nil
 											:family "FiraMono Nerd Font"
-											:height 100
-											:weight 'normal
-											:width 'normal)
+											;; :height 100
+											;; :weight 'normal
+											;; :width 'normal
+											)
 
 	(defun concat-string-list (list)
 		"Return a string which is a concatenation of all elements of the list separated by spaces"
@@ -159,6 +160,8 @@
 	;; Hitting suspend frame by accident is annoying me
 	("C-z" . nil)
 	("C-x C-z" . nil)
+	("H-b" . switch-to-buffer)
+	("H-k" . kill-buffer)
 	:hook
 	(emacs-startup-hook . startup/revert-file-name-handler-alist)
 	(prog-mode-hook . display-line-numbers-mode)
@@ -253,7 +256,7 @@
 		;; (dired-mark-files-regexp (filename-to-regexp zip-file))
 		)
 	:bind
-	("C-c d" . dired)
+	("H-d" . dired)
 	)
 
 (leaf meow
@@ -261,7 +264,10 @@
 	:init
 	(load-file "~/.emacs.d/meow.el")
 	(meow-setup)
-	(meow-global-mode t))
+	(meow-global-mode t)
+	(meow-define-keys
+			'normal
+		'("P" . meow-yank-pop)))
 
 (leaf dired-narrow
 	:leaf-defer t
@@ -305,12 +311,25 @@
 														 ("~/org/gtd/corkboard.org" :maxlevel . 3)))
 	(add-to-list 'org-entities-user
 							 '("oint","\\oint{}" t "&#8750" "..." "..." "∮"))
+	(with-eval-after-load 'ox-latex
+		(add-to-list 'org-latex-classes
+							 '("elsarticle"
+								 "\\documentclass{elsarticle}
+ [NO-DEFAULT-PACKAGES]
+ [PACKAGES]
+ [EXTRA]"
+								 ("\\section{%s}" . "\\section*{%s}")
+								 ("\\subsection{%s}" . "\\subsection*{%s}")
+								 ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+								 ("\\paragraph{%s}" . "\\paragraph*{%s}")
+								 ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
 	:bind
 	("C-c c" . org-capture)
 	("C-c a" . org-agenda)
 	("C-c t s" . org-timer-set-timer)
 	("C-c t k" . org-timer-stop)
 	("C-c t p" . org-timer-pause-or-continue)
+	("C-c b" . org-cite-insert)
 	:hook
 	(org-mode-hook . flyspell-mode)
 	(org-mode-hook . org-indent-mode)
@@ -320,8 +339,6 @@
 (leaf citar
 	:ensure t
 	:leaf-defer t
-  :bind (org-mode-map
-				 ("C-c b" . org-cite-insert))
   :custom
   (org-cite-global-bibliography . '("~/org/papers/references.bib"))
 	(org-cite-insert-processor . 'citar)
@@ -505,10 +522,10 @@
 	:ensure t
 	;; :init
 	;; (consult-org-roam-mode 1)
-	:config
-	(consult-customize
-	 consult-org-roam-forward-links
-	 :preview-key (kbd "M-."))
+	;; :config
+	;; (consult-customize
+	;;  consult-org-roam-forward-links
+	;;  :preview-key (kbd "M-."))
 	:bind
 	("C-c n e" . consult-org-roam-file-find)
 	("C-c n b" . consult-org-roam-backlinks)
@@ -586,7 +603,7 @@
 (leaf ace-window
 	:ensure t
 	:config
-	(global-set-key (kbd "C-x o") 'ace-window)
+	(global-set-key (kbd "H-o") 'ace-window)
 	(setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)))
 
 (leaf async
