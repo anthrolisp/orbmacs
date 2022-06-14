@@ -102,7 +102,7 @@
 	(setq backward-delete-char-untabify-method 'nil)
 
 	;; Enable prettify symbols
-	;; (global-prettify-symbols-mode t)
+	(global-prettify-symbols-mode t)
 
 	;; Enable bracket pair-matching
 	(setq electric-pair-pairs '(
@@ -270,7 +270,7 @@
 		'("P" . meow-yank-pop)))
 
 (leaf dired-narrow
-	:leaf-defer t
+	:after dired
 	:ensure t
 	:bind ((dired-mode-map
 					:package dired
@@ -280,7 +280,6 @@
 	:ensure t
 	:config
 	(setq sentence-end-double-space nil)
-	(setq org-pretty-entities t)
 	(setq org-capture-templates '(("t" "Todo [inbox]" entry
 																 (file+headline "~/org/gtd/inbox.org" "Tasks")
 																 "* TODO %i%?")
@@ -334,11 +333,25 @@
 	(org-mode-hook . flyspell-mode)
 	(org-mode-hook . org-indent-mode)
 	(org-mode-hook . visual-line-mode)
-	(org-after-todo-statistics . org-summary-todo))
+	(org-after-todo-statistics-hook . org-summary-todo))
+
+(leaf olivetti
+	:ensure t
+	:config
+	(setq olivetti-style 'fancy)
+	:bind
+	("C-c O" . olivetti-mode)
+	:hook
+	(olivetti-mode-hook . (lambda ()(setq olivetti-body-width 0.5))))
+
+(leaf page-break-lines
+	:ensure t
+	:init
+	(global-page-break-lines-mode))
 
 (leaf citar
 	:ensure t
-	:leaf-defer t
+	:after org
   :custom
   (org-cite-global-bibliography . '("~/org/papers/references.bib"))
 	(org-cite-insert-processor . 'citar)
@@ -556,7 +569,7 @@
 	:after (embark consult)
 	:leaf-defer nil
 	:hook
-	(embark-collect-mode . consult-preview-at-point-mode))
+	(embark-collect-mode-hook . consult-preview-at-point-mode))
 
 (leaf savehist
 	:init
@@ -611,10 +624,6 @@
   :init
   (dired-async-mode 1))
 
-(leaf page-break-lines
-	:ensure t
-  :diminish (page-break-lines-mode visual-line-mode))
-
 (leaf undo-tree
 	:ensure t
   :diminish undo-tree-mode)
@@ -627,50 +636,36 @@
 	:ensure t
   :diminish eldoc-mode)
 
-;; (leaf doom-themes
-;;   :ensure t
-;;   :config
-;;   ;; Global settings (defaults)
-;;   (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-;;         doom-themes-enable-italic t) ; if nil, italics is universally disabled
-;;   ;; Enable flashing mode-line on errors
-;;   (doom-themes-visual-bell-config)
-;;   ;; Corrects (and improves) org-mode's native fontification.
-;;   (doom-themes-org-config)
-;; 	:init
-;; 	(setq custom-safe-themes t)
-;; 	(load-theme 'doom-solarized-light))
-
 (leaf rainbow-delimiters
 	:ensure t
 	:hook
 	(prog-mode-hook . rainbow-delimiters-mode))
 
-(leaf leaf
-	:ensure t
-  :straight (lambda-line :type git :host github :repo "lambda-emacs/lambda-line")
-  :custom
-  (lambda-line-position . 'bottom) ;; Set position of status-line
-  (lambda-line-abbrev . t) ;; abbreviate major modes
-  (lambda-line-hspace . "  ")  ;; add some cushion
-  (lambda-line-prefix . t) ;; use a prefix symbol
-  (lambda-line-prefix-padding . nil) ;; no extra space for prefix
-  (lambda-line-status-invert . nil)  ;; no invert colors
-  (lambda-line-gui-ro-symbol . " ⨂") ;; symbols
-  (lambda-line-gui-mod-symbol . " ⬤")
-  (lambda-line-gui-rw-symbol . " ◯")
-  (lambda-line-space-top . +.1)  ;; padding on top and bottom of line
-  (lambda-line-space-bottom . -.1)
-  (lambda-line-symbol-position . 0.1) ;; adjust the vertical placement of symbol
-  :config
-	(customize-set-variable 'flymake-mode-line-counter-format '("" flymake-mode-line-error-counter flymake-mode-line-warning-counter flymake-mode-line-note-counter ""))
-	(customize-set-variable 'flymake-mode-line-format '(" " flymake-mode-line-exception flymake-mode-line-counters))
-  ;; activate lambda-line
-  (lambda-line-mode)
-  ;; set divider line in footer
-  (when (eq lambda-line-position 'top)
-   (setq-default mode-line-format (list "%_"))
-   (setq mode-line-format (list "%_"))))
+;; (leaf leaf
+;; 	:ensure t
+;;   :straight (lambda-line :type git :host github :repo "lambda-emacs/lambda-line")
+;;   :custom
+;;   (lambda-line-position . 'bottom) ;; Set position of status-line
+;;   (lambda-line-abbrev . t) ;; abbreviate major modes
+;;   (lambda-line-hspace . "  ")  ;; add some cushion
+;;   (lambda-line-prefix . t) ;; use a prefix symbol
+;;   (lambda-line-prefix-padding . nil) ;; no extra space for prefix
+;;   (lambda-line-status-invert . nil)  ;; no invert colors
+;;   (lambda-line-gui-ro-symbol . " ⨂") ;; symbols
+;;   (lambda-line-gui-mod-symbol . " ⬤")
+;;   (lambda-line-gui-rw-symbol . " ◯")
+;;   (lambda-line-space-top . +.1)  ;; padding on top and bottom of line
+;;   (lambda-line-space-bottom . -.1)
+;;   (lambda-line-symbol-position . 0.1) ;; adjust the vertical placement of symbol
+;;   :config
+;; 	(customize-set-variable 'flymake-mode-line-counter-format '("" flymake-mode-line-error-counter flymake-mode-line-warning-counter flymake-mode-line-note-counter ""))
+;; 	(customize-set-variable 'flymake-mode-line-format '(" " flymake-mode-line-exception flymake-mode-line-counters))
+;;   ;; activate lambda-line
+;;   (lambda-line-mode)
+;;   ;; set divider line in footer
+;;   (when (eq lambda-line-position 'top)
+;;    (setq-default mode-line-format (list "%_"))
+;;    (setq mode-line-format (list "%_"))))
 
 (leaf leaf
   :straight (lambda-themes :type git :host github :repo "lambda-emacs/lambda-themes")
@@ -681,21 +676,6 @@
   :config
 	(setq custom-safe-themes t)
   (load-theme 'lambda-light-faded))
-	;; (custom-set-faces
-	;;  '(elfeed-search-unread-title-face ((t (:foreground "#282b35"))))
-	;;  '(table-cell ((t (:background "#fcfaf6" :foreground "#282b35" :inverse-video nil))))))
-
-;; (leaf moody
-;; 	:ensure t
-;;   :init
-;;   (setq x-underline-at-descent-line t)
-;;   (moody-replace-mode-line-buffer-identification)
-;;   (moody-replace-vc-mode)
-;;   (moody-replace-eldoc-minibuffer-message-function))
-
-;; (leaf minions
-;; 	:ensure t
-;; 	:init (minions-mode 1))
 
 ;; (leaf nix-mode
 ;;   :mode "\\.nix\\'")
@@ -716,8 +696,8 @@
   :config
   (dashboard-setup-startup-hook)
 	(setq inhibit-startup-message t)
-  (setq dashboard-items '((recents . 5)
-													(bookmarks . 9)))
+  (setq dashboard-items '((recents . 9)
+													(bookmarks . 15)))
   ;; (add-to-list 'dashboard-items '(agenda) t)
   ;; (setq deashboard-week-agenda t)
   (setq dashboard-banner-logo-title "Welcome to Orbmacs.")
@@ -733,5 +713,5 @@
   (setq dashboard-init-info (format "%d packages loaded in %s"
                                     (length package-activated-list) (emacs-init-time))))
 
-(provide 'init)
-;;; init.el ends here
+(provide 'emacs)
+;;; emacs.el ends here
