@@ -1,8 +1,8 @@
-;;;; orbmacs --- General purpose Emacs configuration for engineers
+;;;; orbmacs --- Emacs configuration for org mode
 
 ;; Copyright (c) 2022 jakub@posteo.net
 
-;; permission is hereby granted, free of charge, to any person obtaining a copy
+;; Permission is hereby granted, free of charge, to any person obtaining a copy
 ;; of this software and associated documentation files (the "software"), to deal
 ;; in the software without restriction, including without limitation the rights
 ;; to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
@@ -102,7 +102,7 @@
 	(setq backward-delete-char-untabify-method 'nil)
 
 	;; Enable prettify symbols
-	(global-prettify-symbols-mode t)
+	;; (global-prettify-symbols-mode t)
 
 	;; Enable bracket pair-matching
 	(setq electric-pair-pairs '(
@@ -160,7 +160,8 @@
 	;; Hitting suspend frame by accident is annoying me
 	("C-z" . nil)
 	("C-x C-z" . nil)
-	("H-b" . switch-to-buffer)
+	("H-b" . consult-buffer)
+	("H-B" . consult-buffer-other-window)
 	("H-k" . kill-buffer)
 	:hook
 	(emacs-startup-hook . startup/revert-file-name-handler-alist)
@@ -267,7 +268,7 @@
 	(meow-global-mode t)
 	(meow-define-keys
 			'normal
-		'("P" . meow-yank-pop)))
+		'("P" . consult-yank-pop)))
 
 (leaf dired-narrow
 	:after dired
@@ -280,9 +281,19 @@
 	:ensure t
 	:config
 	(setq sentence-end-double-space nil)
-	(setq org-capture-templates '(("t" "Todo [inbox]" entry
+	(setq org-pretty-entities t)
+	
+	(defun org-capture-mail ()
+		(interactive)
+		(call-interactively 'org-store-link)
+		(org-capture nil "@"))
+	
+	(setq org-capture-templates '(("t" "Inbox" entry
 																 (file+headline "~/org/gtd/inbox.org" "Tasks")
-																 "* TODO %i%?")
+																 "* TODO %i%?\nEntered on: %U")
+																("@" "Inbox [mu4e]" entry
+																 (file+headline "~/org/gtd/inbox.org" "Mail")
+																 "* TODO Process \"%a\" %?\nEntered on: %U")
 																("n" "Note" entry
 																 (file+headline "~/org/gtd/inbox.org" "Notes")
 																 "* %(read-string\"Title: \") %T\n%i%?")
@@ -292,10 +303,12 @@
 																("m" "Meeting minutes" entry
 																 (file+headline "~/org/meetings.org" "Meeting notes")
 																 "* Meeting title: %(read-string \"Meeting title: \")\nAttending: %(read-string \"Attendees: \")\nTime: %U\n\n%i%?")))
+	
 	(setq org-agenda-files '("~/org/gtd/inbox.org"
 													 "~/org/gtd/corkboard.org"
 													 "~/org/gtd/reminders.org"
 													 "~/org/timetable.org"))
+	
 	(setq recentf-exclude '("\\.org\\"))
 	(setq org-todo-keywords
 				'((sequence "TODO" "|" "DONE" "CANC")))
@@ -369,6 +382,10 @@
 	("C-c Z" . mu4e-other-window)
 	(mu4e-main-mode-map
 	 ("e" . kill-current-buffer))
+	(mu4e-headers-mode-map
+	 ("C-c c" . org-capture-mail))
+	(mu4e-view-mode-map
+	 ("C-c c" . org-capture-mail))
 	:defer-config
 	(load "~/.emacs.d/mail.el"))
 
@@ -518,10 +535,17 @@
 	:config
 	(load-file "~/.emacs.d/roam.el"))
 
-(leaf swiper
+(leaf org-roam-ui
 	:ensure t
-  :bind (("C-s" . swiper)
-				 ("C-c l" . swiper-avy)))
+	:after org-roam
+	:config
+	(setq org-roam-ui-sync-theme t
+				org-roam-ui-follow t
+				org-roam-ui-update-on-save t
+				org-roam-ui-open-on-start t)
+	:bind
+	("C-c n u" . org-roam-ui-mode))
+
 
 (leaf vertico
 	:ensure t
@@ -529,7 +553,11 @@
 	(vertico-mode))
 
 (leaf consult
-	:ensure t)
+	:ensure t
+	:bind
+	("C-s" . consult-line)
+	("C-S" . consult-line-multi)
+	("M-g g" . consult-goto-line))
 
 (leaf consult-org-roam
 	:ensure t
@@ -608,10 +636,10 @@
   :init
   (beacon-mode 1))
 
-(leaf avy
-	:ensure t
-  :bind
-  ("M-s" . avy-goto-char))
+;; (leaf avy
+;; 	:ensure t
+;;   :bind
+;;   ("M-s" . avy-goto-char))
 
 (leaf ace-window
 	:ensure t
@@ -712,6 +740,5 @@
   (setq dashboard-set-init-info t)
   (setq dashboard-init-info (format "%d packages loaded in %s"
                                     (length package-activated-list) (emacs-init-time))))
-
 (provide 'emacs)
 ;;; emacs.el ends here
