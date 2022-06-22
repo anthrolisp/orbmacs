@@ -288,18 +288,18 @@
 		(call-interactively 'org-store-link)
 		(org-capture nil "@"))
 	
-	(setq org-capture-templates '(("t" "Inbox" entry
+	(setq org-capture-templates '(("i" "Inbox" entry
 																 (file+headline "~/org/gtd/inbox.org" "Tasks")
 																 "* TODO %i%?\nEntered on: %U")
 																("@" "Inbox [mu4e]" entry
 																 (file+headline "~/org/gtd/inbox.org" "Mail")
 																 "* TODO Process \"%a\" %?\nEntered on: %U")
-																("n" "Note" entry
-																 (file+headline "~/org/gtd/inbox.org" "Notes")
-																 "* %(read-string\"Title: \") %T\n%i%?")
+																("N" "Notebook" entry
+																 (file "~/org/notes/notebook.org")
+																 "* %(read-string\"Title: \")\nEntered on: %U\n%i%?")
 																("r" "Reminder" entry
 																 (file+headline "~/org/gtd/reminders.org" "Reminders")
-																 "* TODO %i%?\n%U")
+																 "* TODO %i%?\nEntered on: %U")
 																("m" "Meeting minutes" entry
 																 (file+headline "~/org/meetings.org" "Meeting notes")
 																 "* Meeting title: %(read-string \"Meeting title: \")\nAttending: %(read-string \"Attendees: \")\nTime: %U\n\n%i%?")))
@@ -347,6 +347,16 @@
 	(org-mode-hook . org-indent-mode)
 	(org-mode-hook . visual-line-mode)
 	(org-after-todo-statistics-hook . org-summary-todo))
+
+(leaf auctex
+	:ensure t)
+
+(leaf leaf
+  :straight (org-pandoc-import
+						 :type git
+						 :host github
+             :repo "tecosaur/org-pandoc-import"
+             :files ("*.el" "filters" "preprocessors")))
 
 (leaf olivetti
 	:ensure t
@@ -397,21 +407,24 @@
 	(mu4e-alert-enable-mode-line-display)
 	(mu4e-alert-enable-notifications))
 
-;; (leaf elfeed
-;; 	:ensure t
-;; 	:leaf-defer t
-;; 	:defer-config
-;; 	(setq elfeed-feeds
-;; 				'(
-;; 					;; emacs
-;; 					("https://masteringemacs.org/feed" MasteringEmacs)
-;; 					("https://www.reddit.com/r/emacs.rss" r/emacs)
-;; 					("https://emacsredux.com/atom.xml" EmacsRedux)
-;; 					("https://www.sciencedaily.com/rss/top/science.xml" DailySci)
-;; 					("https://www.sciencedaily.com/rss/top/technology.xml" DailyTech)
-;; 					))
-;; 	:bind
-;; 	("C-c f" . elfeed))
+(leaf elfeed
+	:ensure t
+	:leaf-defer t
+	:defer-config
+	(setq elfeed-feeds
+				'(
+					;; emacs
+					("https://masteringemacs.org/feed" emacs)
+					("https://rss.sciencedirect.com/publication/science/03019322" fluids multiphase)
+					("https://rss.sciencedirect.com/publication/science/13594311" fluids thermal)
+					("https://rss.sciencedirect.com/publication/science/0142727X" fluids thermal)
+					("https://rss.sciencedirect.com/publication/science/00457930" fluids computation)
+					("https://www.mdpi.com/rss/journal/fluids" fluids)
+					))
+	:bind
+	("C-c w" . elfeed)
+	(elfeed-search-mode-map
+	 ("U" . elfeed-update)))
 
 (leaf bongo
 	:ensure t
@@ -522,29 +535,55 @@
   (prog-mode-hook . yas-minor-mode)
   (text-mode-hook . yas-minor-mode))
 
-(leaf org-roam
-  :ensure t
-  :custom
-  (org-roam-directory . "~/RoamNotes/")
-  :bind (("C-c n l" . org-roam-buffer-toggle)
-				 ("C-c n f" . org-roam-node-find)
-				 ("C-c n g" . org-roam-graph)
-				 ("C-c n i" . org-roam-node-insert)
-				 ("C-c n I" . org-roam-node-insert-immediate)
-				 ("C-c n c" . org-roam-capture))
+(leaf leaf
+	:straight (denote
+						 :type git
+						 :host github
+						 :repo "protesilaos/denote")
 	:config
-	(load-file "~/.emacs.d/roam.el"))
+	(with-eval-after-load 'org-capture
+  (require 'denote-org-capture)
+  (add-to-list 'org-capture-templates
+               '("n" "New note" plain
+                 (file denote-last-path)
+                 #'denote-org-capture
+                 :no-save t
+                 :immediate-finish nil
+                 :kill-buffer t
+                 :jump-to-captured t))))
 
-(leaf org-roam-ui
-	:ensure t
-	:after org-roam
+(leaf leaf
+	:straight (consult-notes
+						 :type git
+						 :host github
+						 :repo "mclear-tools/consult-notes")
 	:config
-	(setq org-roam-ui-sync-theme t
-				org-roam-ui-follow t
-				org-roam-ui-update-on-save t
-				org-roam-ui-open-on-start t)
-	:bind
-	("C-c n u" . org-roam-ui-mode))
+	(setq consult-notes-data-dirs '(("notes" ?o "~/org/notes/")
+																	("papers" ?p "~/org/papers/"))))
+
+;; (leaf org-roam
+;;   :ensure t
+;;   :custom
+;;   (org-roam-directory . "~/RoamNotes/")
+;;   :bind (("C-c n l" . org-roam-buffer-toggle)
+;; 				 ("C-c n f" . org-roam-node-find)
+;; 				 ("C-c n g" . org-roam-graph)
+;; 				 ("C-c n i" . org-roam-node-insert)
+;; 				 ("C-c n I" . org-roam-node-insert-immediate)
+;; 				 ("C-c n c" . org-roam-capture))
+;; 	:config
+;; 	(load-file "~/.emacs.d/roam.el"))
+
+;; (leaf org-roam-ui
+;; 	:ensure t
+;; 	:after org-roam
+;; 	:config
+;; 	(setq org-roam-ui-sync-theme t
+;; 				org-roam-ui-follow t
+;; 				org-roam-ui-update-on-save t
+;; 				org-roam-ui-open-on-start t)
+;; 	:bind
+;; 	("C-c n u" . org-roam-ui-mode))
 
 
 (leaf vertico
@@ -555,25 +594,25 @@
 (leaf consult
 	:ensure t
 	:bind
-	("C-s" . consult-line)
-	("C-S" . consult-line-multi)
-	("M-g g" . consult-goto-line))
+	("H-s" . consult-line)
+	("M-g g" . consult-goto-line)
+	("C-x r b" . consult-bookmark))
 
-(leaf consult-org-roam
-	:ensure t
-	;; :init
-	;; (consult-org-roam-mode 1)
-	;; :config
-	;; (consult-customize
-	;;  consult-org-roam-forward-links
-	;;  :preview-key (kbd "M-."))
-	:bind
-	("C-c n e" . consult-org-roam-file-find)
-	("C-c n b" . consult-org-roam-backlinks)
-	("C-c n r" . consult-org-roam-search)
-	;; :hook
-	;; (org-mode-hook . consult-org-roam-mode)
-	)
+;; (leaf consult-org-roam
+;; 	:ensure t
+;; 	;; :init
+;; 	;; (consult-org-roam-mode 1)
+;; 	;; :config
+;; 	;; (consult-customize
+;; 	;;  consult-org-roam-forward-links
+;; 	;;  :preview-key (kbd "M-."))
+;; 	:bind
+;; 	("C-c n e" . consult-org-roam-file-find)
+;; 	("C-c n b" . consult-org-roam-backlinks)
+;; 	("C-c n r" . consult-org-roam-search)
+;; 	;; :hook
+;; 	;; (org-mode-hook . consult-org-roam-mode)
+;; 	)
 
 
 (leaf embark
