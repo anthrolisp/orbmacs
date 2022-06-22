@@ -3,7 +3,7 @@ Emacs for scientists.
 [[./media/sicp.png]]
 ** Introduction
 
-Orbmacs is an emacs configuration focused on org(-roam) mode and "living in Emacs", and gives me a highly streamlined workflow. It makes use of vertico, consult, and modal editing through meow.el.
+Orbmacs is an emacs configuration focused on org mode and "living in Emacs", and gives me a highly streamlined workflow. It makes use of vertico, consult, and modal editing through meow.el.
 
 Unfortunately there are presently no orbs in orbmacs aside from the dashboard image, but I am looking into ways to resolve this issue. There is however an alternate orb-themed dashboard image in the media folder.
 
@@ -11,7 +11,7 @@ Packages are managed using [[https://github.com/conao3/leaf.el][leaf]].
 
 I would encourage forking this repository if you are interested in using it as a base for your own customizations, but ideally you should build your own configuration from scratch and simply pick out any parts you like.
 
-In the future I intend to add more features for python programming, specifically with numpy, and tweaks to org/org-roam and dired.
+In the future I intend to add more features for python programming, specifically with numpy, and tweaks to org mode and dired.
 
 If you have any questions or suggestions please feel free to contact me, and I will do my best to respond promptly. A fair warning that I am a mechanical engineer and not a programmer by trade.
 
@@ -39,7 +39,6 @@ If you wish to use mu4e for email, you will need to do some additional setup. Th
 Default folders (you need to create these yourself if you do not have them)
 - Org agenda: =~/org/=
 - GTD: =~/org/gtd/=
-- Org roam: =~/RoamNotes/=
 - Bongo: =~/Music/=
 - mu4e: =~/.mail/=
 - Citar: =~/org/papers/bibliography.bib=
