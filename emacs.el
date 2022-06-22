@@ -382,7 +382,7 @@
   (org-cite-activate-processor . 'citar)
   (citar-bibliography . org-cite-global-bibliography)
 	:config
-	(advice-add #'completing-read-multiple :override #'consult-completing-read-multiple)
+	;; (advice-add #'completing-read-multiple :override #'consult-completing-read-multiple)
 	(setq citar-at-point-function 'embark-act))
 
 (leaf mu4e
@@ -550,7 +550,12 @@
                  :no-save t
                  :immediate-finish nil
                  :kill-buffer t
-                 :jump-to-captured t))))
+                 :jump-to-captured t)))
+	(setq denote-directory "~/org/notes/")
+	(setq denote-dired-directories
+      (list denote-directory))
+	:hook
+	(dired-mode-hook . denote-dired-mode-in-directories))
 
 (leaf leaf
 	:straight (consult-notes
@@ -559,7 +564,8 @@
 						 :repo "mclear-tools/consult-notes")
 	:config
 	(setq consult-notes-data-dirs '(("notes" ?o "~/org/notes/")
-																	("papers" ?p "~/org/papers/"))))
+																	("papers" ?p "~/org/papers/")))
+	(setq consult-notes-sources '(consult-notes-data-dirs)))
 
 ;; (leaf org-roam
 ;;   :ensure t
