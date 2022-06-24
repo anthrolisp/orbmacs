@@ -24,28 +24,6 @@
 ;; Orbmacs is an Emacs configuration with a focus on org mode and "living in Emacs"
 
 ;;; Code:
-
-;; <leaf-install-code>
-(eval-and-compile
-  (customize-set-variable
-   'package-archives '(("melpa" . "https://melpa.org/packages/")
-											 ("gnu" . "https://elpa.gnu.org/packages/")))
-  (package-initialize)
-  (unless (package-installed-p 'leaf)
-    (package-refresh-contents)
-    (package-install 'leaf))
-
-  (leaf leaf-keywords
-    :ensure t
-    :init
-    ;; optional packages if you want to use :hydra, :el-get, :blackout,,,
-    (leaf hydra :ensure t)
-    (leaf blackout :ensure t)
-    :config
-    ;; initialize leaf-keywords.el
-    (leaf-keywords-init)))
-;; </leaf-install-code>
-
 (defvar bootstrap-version)
 (let ((bootstrap-file
        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
@@ -58,6 +36,12 @@
       (goto-char (point-max))
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
+
+(eval-when-compile
+  (straight-use-package 'leaf)
+  (straight-use-package 'leaf-keywords)
+  (straight-use-package 'blackout)
+  (leaf-keywords-init))
 
 (leaf emacs
 	:init
@@ -261,7 +245,7 @@
 	)
 
 (leaf meow
-	:ensure t
+	:straight t
 	:init
 	(load-file "~/.emacs.d/meow.el")
 	(meow-setup)
@@ -271,14 +255,14 @@
 		'("P" . consult-yank-pop)))
 
 (leaf dired-narrow
+	:straight t
 	:after dired
-	:ensure t
 	:bind ((dired-mode-map
 					:package dired
 					("/" . dired-narrow))))
 
 (leaf org
-	:ensure t
+	:straight t
 	:config
 	(setq sentence-end-double-space nil)
 	(setq org-pretty-entities t)
@@ -336,7 +320,7 @@
 								 ("\\paragraph{%s}" . "\\paragraph*{%s}")
 								 ("\\subparagraph{%s}" . "\\subparagraph*{%s}"))))
 	:bind
-	("C-c c" . org-capture)
+	("H-c" . org-capture)
 	("C-c a" . org-agenda)
 	("C-c t s" . org-timer-set-timer)
 	("C-c t k" . org-timer-stop)
@@ -349,7 +333,7 @@
 	(org-after-todo-statistics-hook . org-summary-todo))
 
 (leaf auctex
-	:ensure t)
+	:straight t)
 
 (leaf leaf
   :straight (org-pandoc-import
@@ -359,7 +343,7 @@
              :files ("*.el" "filters" "preprocessors")))
 
 (leaf olivetti
-	:ensure t
+	:straight t
 	:config
 	(setq olivetti-style 'fancy)
 	:bind
@@ -368,12 +352,12 @@
 	(olivetti-mode-hook . (lambda ()(setq olivetti-body-width 0.5))))
 
 (leaf page-break-lines
-	:ensure t
+	:straight t
 	:init
 	(global-page-break-lines-mode))
 
 (leaf citar
-	:ensure t
+	:straight t
 	:after org
   :custom
   (org-cite-global-bibliography . '("~/org/papers/references.bib"))
@@ -400,7 +384,7 @@
 	(load "~/.emacs.d/mail.el"))
 
 (leaf mu4e-alert
-	:ensure t
+	:straight t
 	:after mu4e
 	:config
 	(mu4e-alert-set-default-style 'libnotify)
@@ -408,7 +392,7 @@
 	(mu4e-alert-enable-notifications))
 
 (leaf elfeed
-	:ensure t
+	:straight t
 	:leaf-defer t
 	:defer-config
 	(setq elfeed-feeds
@@ -427,7 +411,7 @@
 	 ("U" . elfeed-update)))
 
 (leaf bongo
-	:ensure t
+	:straight t
 	:leaf-defer t
 	:defer-config (load-file "~/.emacs.d/music.el")
 	:bind
@@ -459,36 +443,35 @@
 		("C-c +" . prot/bongo-dired-make-playlist-file))))
 
 (leaf vterm
-	:ensure t
+	:straight t
 	:leaf-defer t
   :config
   (setq vterm-timer-delay 0.01)
 	(global-set-key (kbd "C-c v") 'vterm))
 
 (leaf slime
-	:ensure t
+	:straight t
 	:leaf-defer t)
 
 (leaf slime-company
-	:ensure t
+	:straight t
 	:leaf-defer t
   :after (slime company)
   :config (setq slime-company-completion 'fuzzy
                 slime-company-after-completion 'slime-company-just-one-space))
 
 (leaf all-the-icons
-	:ensure t
+	:straight t
   :if (display-graphic-p))
 
 (leaf all-the-icons-dired
-	:ensure t
+	:straight t
 	:if (display-graphic-p)
 	:leaf-defer t
 	:commands all-the-icons-dired-mode
 	:hook (dired-mode-hook . all-the-icons-dired-mode))
 
 ;; (leaf lsp-mode
-;; 	:ensure t
 ;;   :commands lsp
 ;;   :custom
 ;;   (lsp-eldoc-render-all . t)
@@ -498,7 +481,6 @@
 ;;   (lsp-mode-hook . lsp-ui-mode))
 
 ;; (leaf lsp-ui
-;; 	:ensure t
 ;;   :commands lsp-ui-mode
 ;;   :custom
 ;;   (lsp-ui-peek-always-show . t)
@@ -506,7 +488,7 @@
 ;;   (lsp-ui-doc-enable . nil))
 
 (leaf eglot
-	:ensure t
+	:straight t
 	:leaf-defer
 	:hook ((c-mode-hook c++-mode-hook python-mode-hook) . eglot-ensure)
 	:config
@@ -516,7 +498,7 @@
 
 
 (leaf company
-	:ensure t
+	:straight t
   :custom
   (company-idle-delay . 0.25) ;; how long to wait until popup
   ;; (company-begin-commands nil) ;; uncomment to disable popup
@@ -530,7 +512,7 @@
 	       ("M->" . company-select-last)))
 
 (leaf yasnippet
-	:ensure t
+	:straight t
 	:hook
   (prog-mode-hook . yas-minor-mode)
   (text-mode-hook . yas-minor-mode))
@@ -554,8 +536,20 @@
 	(setq denote-directory "~/org/notes/")
 	(setq denote-dired-directories
       (list denote-directory))
+	(defun my-denote-journal ()
+		"Create an entry tagged 'journal' with the date as its title."
+		(interactive)
+		(denote
+		 (format-time-string "%A %e %B %Y") ; format like Tuesday 14 June 2022
+		 "journal")) ; multiple keywords are a list of strings: '("one" "two")
 	:hook
-	(dired-mode-hook . denote-dired-mode-in-directories))
+	(dired-mode-hook . denote-dired-mode-in-directories)
+	;; (find-file-hook . denote-link-buttonize-buffer)
+	:bind
+	("C-c n i" . denote-link)
+	("C-c n I" . denote-link-add-links)
+	("C-c n j" . my-denote-journal)
+	("C-c n b" . denote-link-backlinks))
 
 (leaf leaf
 	:straight (consult-notes
@@ -563,12 +557,16 @@
 						 :host github
 						 :repo "mclear-tools/consult-notes")
 	:config
-	(setq consult-notes-data-dirs '(("notes" ?o "~/org/notes/")
+	(setq consult-notes-sources '(("notes" ?n "~/org/notes/")
 																	("papers" ?p "~/org/papers/")))
-	(setq consult-notes-sources '(consult-notes-data-dirs)))
+	(defun jakub/consult-notes-ripgrep ()
+		(interactive)
+			(consult-ripgrep "~/org/notes/"))
+	:bind
+	("C-c n r" . jakub/consult-notes-ripgrep)
+	("C-c n f" . consult-notes))
 
 ;; (leaf org-roam
-;;   :ensure t
 ;;   :custom
 ;;   (org-roam-directory . "~/RoamNotes/")
 ;;   :bind (("C-c n l" . org-roam-buffer-toggle)
@@ -581,7 +579,6 @@
 ;; 	(load-file "~/.emacs.d/roam.el"))
 
 ;; (leaf org-roam-ui
-;; 	:ensure t
 ;; 	:after org-roam
 ;; 	:config
 ;; 	(setq org-roam-ui-sync-theme t
@@ -593,19 +590,19 @@
 
 
 (leaf vertico
-	:ensure t
+	:straight t
 	:init
 	(vertico-mode))
 
 (leaf consult
-	:ensure t
+	:straight t
 	:bind
 	("H-s" . consult-line)
 	("M-g g" . consult-goto-line)
-	("C-x r b" . consult-bookmark))
+	("C-x r b" . consult-bookmark)
+	("H-r" . consult-ripgrep))
 
 ;; (leaf consult-org-roam
-;; 	:ensure t
 ;; 	;; :init
 ;; 	;; (consult-org-roam-mode 1)
 ;; 	;; :config
@@ -622,7 +619,7 @@
 
 
 (leaf embark
-	:ensure t
+	:straight t
 	:bind
 	(("C-." . embark-act)         ;; pick some comfortable binding
 	 ("C-;" . embark-dwim)        ;; good alternative: M-.
@@ -638,84 +635,79 @@
 								 (window-parameters (mode-line-format . none)))))
 
 (leaf embark-consult
-	:ensure t
+	:straight t
 	:after (embark consult)
 	:leaf-defer nil
 	:hook
 	(embark-collect-mode-hook . consult-preview-at-point-mode))
 
 (leaf savehist
+	:straight t
 	:init
 	(savehist-mode)
 	:config
 	(setq savehist-additional-variables '(search-ring regexp-search-ring kill-ring)))
 
 (leaf marginalia
+	:straight t
   :after vertico
-  :ensure t
   :custom
   (marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil))
   :init
   (marginalia-mode))
 
 (leaf orderless
-  :ensure t
+	:straight t
 	:after vertico
 	:config
 	(setq completion-styles '(orderless)))
 
 (leaf htmlize
-	:ensure t)
+	:straight t)
 
 (leaf diminish
-	:ensure t)
+	:straight t)
 
 (leaf which-key
-	:ensure t
+	:straight t
   :init
   (which-key-mode))
 
 (leaf beacon
-	:ensure t
+	:straight t
   :diminish beacon-mode
   :init
   (beacon-mode 1))
 
-;; (leaf avy
-;; 	:ensure t
-;;   :bind
-;;   ("M-s" . avy-goto-char))
-
 (leaf ace-window
-	:ensure t
+	:straight t
 	:config
 	(global-set-key (kbd "H-o") 'ace-window)
 	(setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)))
 
 (leaf async
-	:ensure t
+	:straight t
   :init
   (dired-async-mode 1))
 
 (leaf undo-tree
-	:ensure t
+	:straight t
   :diminish undo-tree-mode)
 
 (leaf magit
-	:ensure t
+	:straight t
 	:leaf-defer)
 
 (leaf eldoc
-	:ensure t
+	:straight t
   :diminish eldoc-mode)
 
 (leaf rainbow-delimiters
-	:ensure t
+	:straight t
 	:hook
 	(prog-mode-hook . rainbow-delimiters-mode))
 
 ;; (leaf leaf
-;; 	:ensure t
 ;;   :straight (lambda-line :type git :host github :repo "lambda-emacs/lambda-line")
 ;;   :custom
 ;;   (lambda-line-position . 'bottom) ;; Set position of status-line
@@ -754,11 +746,11 @@
 ;;   :mode "\\.nix\\'")
 
 (leaf flycheck
-	:ensure t
+	:straight t
   :init (global-flycheck-mode))
 
 (leaf dashboard
-	:ensure t
+	:straight t
   :leaf-defer nil
   :preface
   (defun create-scratch-buffer ()
@@ -772,7 +764,7 @@
   (setq dashboard-items '((recents . 9)
 													(bookmarks . 15)))
   ;; (add-to-list 'dashboard-items '(agenda) t)
-  ;; (setq deashboard-week-agenda t)
+  ;; (setq dashboard-week-agenda t)
   (setq dashboard-banner-logo-title "Welcome to Orbmacs.")
   ;; (setq dashboard-startup-banner "~/.emacs.d/media/orb.png")
   (setq dashboard-startup-banner "~/.emacs.d/media/sicp.png")
@@ -783,7 +775,7 @@
   ;; (setq dashboard-show-shortcuts nil)
   (setq dashboard-set-footer nil)
   (setq dashboard-set-init-info t)
-  (setq dashboard-init-info (format "%d packages loaded in %s"
-                                    (length package-activated-list) (emacs-init-time))))
+  (setq dashboard-init-info (format "Emacs loaded in %s"
+																		(emacs-init-time))))
 (provide 'emacs)
 ;;; emacs.el ends here
