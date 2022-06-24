@@ -28,6 +28,8 @@ To view a range of help options, key in =C-h ?= or simply =M-x help=. Alternativ
 
 ** Notes
 
+Note I have bound the "hyper" key to make some of my keybinds more comfortable. If you wish to use the same keybinds you will have to bind it yourself (e.g. to capslock).
+
 I'm currently using the "getting things done" (GTD) method of organisation. If you do not like GTD, remove the parts relating to it in: agenda files, refile targets, and capture templates.
 
 I'm using the "FiraMono" font available from NerdFonts. If you do not have this font or do not wish to use it, please change it to something else or comment out the setting to use the default.
