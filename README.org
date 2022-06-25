@@ -1,7 +1,7 @@
 #+title: Orbmacs
 Emacs for scientists.
-[[
-./media/sicp.png]]
+
+[[./media/sicp.png]]
 ** Introduction
 
 Orbmacs is an emacs configuration focused on org mode and "living in Emacs", and gives me a highly streamlined workflow. It makes use of vertico, consult, and modal editing through meow.el.
