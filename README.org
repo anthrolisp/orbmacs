@@ -45,6 +45,7 @@ Default folders (you need to create these yourself if you do not have them)
 - Bongo: =~/Music/=
 - mu4e: =~/.mail/=
 - Citar: =~/org/papers/bibliography.bib=
+- Denote: =~/org/notes/=
 
 ** Wish list
 - Documentation
