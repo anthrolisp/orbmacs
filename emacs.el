@@ -96,6 +96,8 @@
 															(?\" . ?\")
 															))
 	(electric-pair-mode t)
+	(setq insert-pair-alist '((40 41) (91 93) (123 125) (34 34) (39 39) (96 39)))
+
 
 	;; Cursor follows new window
 	(defun split-and-follow-horizontally ()
@@ -273,14 +275,14 @@
 		(org-capture nil "@"))
 	
 	(setq org-capture-templates '(("i" "Inbox" entry
-																 (file+headline "~/org/gtd/inbox.org" "Tasks")
+																 (file+headline "~/org/gtd/inbox.org" "Work")
+																 "* TODO %i%?\nEntered on: %U")
+																("p" "Personal inbox" entry
+																 (file+headline "~/org/gtd/inbox.org" "Personal")
 																 "* TODO %i%?\nEntered on: %U")
 																("@" "Inbox [mu4e]" entry
 																 (file+headline "~/org/gtd/inbox.org" "Mail")
 																 "* TODO Process \"%a\" %?\nEntered on: %U")
-																("N" "Notebook" entry
-																 (file "~/org/notes/notebook.org")
-																 "* %(read-string\"Title: \")\nEntered on: %U\n%i%?")
 																("r" "Reminder" entry
 																 (file+headline "~/org/gtd/reminders.org" "Reminders")
 																 "* TODO %i%?\nEntered on: %U")
@@ -295,7 +297,7 @@
 	
 	(setq recentf-exclude '("\\.org\\"))
 	(setq org-todo-keywords
-				'((sequence "TODO" "|" "DONE" "CANC")))
+				'((sequence "TODO" "WAIT" "|" "DONE" "CANC")))
 	(setq org-clock-sound "~/.emacs.d/media/digital_alarm.wav")
 
 	(defun org-summary-todo (n-done n-not-done)
@@ -404,6 +406,7 @@
 					("https://rss.sciencedirect.com/publication/science/0142727X" fluids thermal)
 					("https://rss.sciencedirect.com/publication/science/00457930" fluids computation)
 					("https://www.mdpi.com/rss/journal/fluids" fluids)
+					("https://www.cambridge.org/core/rss/product/id/1F51BCFAA50101CAF5CB9A20F8DEA3E4" fluids mechanics)
 					))
 	:bind
 	("C-c w" . elfeed)
@@ -522,6 +525,10 @@
 						 :type git
 						 :host github
 						 :repo "protesilaos/denote")
+	:init
+	(setq denote-directory "~/org/notes/")
+	(setq denote-dired-directories
+				(list denote-directory))
 	:config
 	(with-eval-after-load 'org-capture
   (require 'denote-org-capture)
@@ -533,9 +540,6 @@
                  :immediate-finish nil
                  :kill-buffer t
                  :jump-to-captured t)))
-	(setq denote-directory "~/org/notes/")
-	(setq denote-dired-directories
-      (list denote-directory))
 	(defun my-denote-journal ()
 		"Create an entry tagged 'journal' with the date as its title."
 		(interactive)
@@ -556,12 +560,12 @@
 						 :type git
 						 :host github
 						 :repo "mclear-tools/consult-notes")
-	:config
+	:init
 	(setq consult-notes-sources '(("notes" ?n "~/org/notes/")
 																	("papers" ?p "~/org/papers/")))
 	(defun jakub/consult-notes-ripgrep ()
 		(interactive)
-			(consult-ripgrep "~/org/notes/"))
+			(consult-ripgrep denote-directory))
 	:bind
 	("C-c n r" . jakub/consult-notes-ripgrep)
 	("C-c n f" . consult-notes))
