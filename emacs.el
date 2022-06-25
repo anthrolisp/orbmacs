@@ -254,7 +254,8 @@
 	(meow-global-mode t)
 	(meow-define-keys
 			'normal
-		'("P" . consult-yank-pop)))
+		'("P" . consult-yank-pop)
+		'("Q" . avy-goto-line)))
 
 (leaf dired-narrow
 	:straight t
@@ -368,7 +369,7 @@
   (org-cite-activate-processor . 'citar)
   (citar-bibliography . org-cite-global-bibliography)
 	:config
-	;; (advice-add #'completing-read-multiple :override #'consult-completing-read-multiple)
+	(advice-add #'multi-occur :override #'consult-multi-occur)
 	(setq citar-at-point-function 'embark-act))
 
 (leaf mu4e
@@ -474,22 +475,6 @@
 	:commands all-the-icons-dired-mode
 	:hook (dired-mode-hook . all-the-icons-dired-mode))
 
-;; (leaf lsp-mode
-;;   :commands lsp
-;;   :custom
-;;   (lsp-eldoc-render-all . t)
-;;   (lsp-idle-delay . 0.6)
-;;   ;; enable / disable the hints as you prefer:
-;;   :hook
-;;   (lsp-mode-hook . lsp-ui-mode))
-
-;; (leaf lsp-ui
-;;   :commands lsp-ui-mode
-;;   :custom
-;;   (lsp-ui-peek-always-show . t)
-;;   (lsp-ui-sideline-show-hover . t)
-;;   (lsp-ui-doc-enable . nil))
-
 (leaf eglot
 	:straight t
 	:leaf-defer
@@ -570,29 +555,6 @@
 	("C-c n r" . jakub/consult-notes-ripgrep)
 	("C-c n f" . consult-notes))
 
-;; (leaf org-roam
-;;   :custom
-;;   (org-roam-directory . "~/RoamNotes/")
-;;   :bind (("C-c n l" . org-roam-buffer-toggle)
-;; 				 ("C-c n f" . org-roam-node-find)
-;; 				 ("C-c n g" . org-roam-graph)
-;; 				 ("C-c n i" . org-roam-node-insert)
-;; 				 ("C-c n I" . org-roam-node-insert-immediate)
-;; 				 ("C-c n c" . org-roam-capture))
-;; 	:config
-;; 	(load-file "~/.emacs.d/roam.el"))
-
-;; (leaf org-roam-ui
-;; 	:after org-roam
-;; 	:config
-;; 	(setq org-roam-ui-sync-theme t
-;; 				org-roam-ui-follow t
-;; 				org-roam-ui-update-on-save t
-;; 				org-roam-ui-open-on-start t)
-;; 	:bind
-;; 	("C-c n u" . org-roam-ui-mode))
-
-
 (leaf vertico
 	:straight t
 	:init
@@ -605,22 +567,6 @@
 	("M-g g" . consult-goto-line)
 	("C-x r b" . consult-bookmark)
 	("H-r" . consult-ripgrep))
-
-;; (leaf consult-org-roam
-;; 	;; :init
-;; 	;; (consult-org-roam-mode 1)
-;; 	;; :config
-;; 	;; (consult-customize
-;; 	;;  consult-org-roam-forward-links
-;; 	;;  :preview-key (kbd "M-."))
-;; 	:bind
-;; 	("C-c n e" . consult-org-roam-file-find)
-;; 	("C-c n b" . consult-org-roam-backlinks)
-;; 	("C-c n r" . consult-org-roam-search)
-;; 	;; :hook
-;; 	;; (org-mode-hook . consult-org-roam-mode)
-;; 	)
-
 
 (leaf embark
 	:straight t
@@ -669,9 +615,6 @@
 (leaf htmlize
 	:straight t)
 
-(leaf diminish
-	:straight t)
-
 (leaf which-key
 	:straight t
   :init
@@ -679,15 +622,21 @@
 
 (leaf beacon
 	:straight t
-  :diminish beacon-mode
+  :blackout beacon-mode
   :init
   (beacon-mode 1))
+
+(leaf avy
+	:straight t
+	:bind
+	("M-s" . avy-goto-char))
 
 (leaf ace-window
 	:straight t
 	:config
-	(global-set-key (kbd "H-o") 'ace-window)
-	(setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l)))
+	(setq aw-keys '(?a ?s ?d ?f ?g ?h ?j ?k ?l))
+	:bind
+	("H-o" . ace-window))
 
 (leaf async
 	:straight t
@@ -696,7 +645,9 @@
 
 (leaf undo-tree
 	:straight t
-  :diminish undo-tree-mode)
+  :blackout undo-tree-mode
+	:config
+	(global-undo-tree-mode t))
 
 (leaf magit
 	:straight t
@@ -704,7 +655,9 @@
 
 (leaf eldoc
 	:straight t
-  :diminish eldoc-mode)
+  :blackout eldoc-mode
+	:config
+	(global-eldoc-mode t))
 
 (leaf rainbow-delimiters
 	:straight t
