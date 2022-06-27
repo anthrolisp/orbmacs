@@ -4,11 +4,11 @@ Emacs for scientists.
 [[./media/sicp.png]]
 ** Introduction
 
-Orbmacs is an emacs configuration focused on org mode and "living in Emacs", and gives me a highly streamlined workflow. It makes use of vertico, consult, and modal editing through meow.el.
+Orbmacs is an emacs configuration focused on org mode and "living in Emacs", and gives me a highly streamlined workflow. It makes use of vertico, consult, and modal editing through meow.el. Key to Orbmacs is remaining lightweight and "close to Emacs", without compromising functionality.
 
 Unfortunately there are presently no orbs in orbmacs aside from the dashboard image, but I am looking into ways to resolve this issue. There is however an alternate orb-themed dashboard image in the media folder.
 
-Packages are managed using [[https://github.com/conao3/leaf.el][leaf]].
+Packages are managed using [[https://github.com/conao3/leaf.el][leaf]] and [[https://github.com/radian-software/straight.el][straight.el]].
 
 I would encourage forking this repository if you are interested in using it as a base for your own customizations, but ideally you should build your own configuration from scratch and simply pick out any parts you like.
 
