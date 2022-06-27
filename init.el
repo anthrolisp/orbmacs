@@ -46,6 +46,7 @@
 (leaf emacs
 	:blackout auto-revert-mode
 	:blackout (emacs-lisp-mode . "λ")
+	:blackout abbrev-mode
 	:init
 	;; Make emacs start faster
 	(setq startup/gc-cons-threshold gc-cons-threshold)
@@ -248,6 +249,17 @@
 	("H-d" . dired)
 	)
 
+(leaf dired-subtree
+	:straight t
+	:after dired)
+
+(leaf dired-narrow
+	:straight t
+	:after dired
+	:bind ((dired-mode-map
+					:package dired
+					("/" . dired-narrow))))
+
 (leaf meow
 	:straight t
 	:init
@@ -258,13 +270,6 @@
 			'normal
 		'("P" . consult-yank-pop)
 		'("Q" . avy-goto-line)))
-
-(leaf dired-narrow
-	:straight t
-	:after dired
-	:bind ((dired-mode-map
-					:package dired
-					("/" . dired-narrow))))
 
 (leaf org
 	:straight t
@@ -297,10 +302,9 @@
 													 "~/org/gtd/corkboard.org"
 													 "~/org/gtd/reminders.org"
 													 "~/org/timetable.org"))
-	
 	(setq recentf-exclude '("\\.org\\"))
 	(setq org-todo-keywords
-				'((sequence "TODO" "WAIT" "|" "DONE" "CANC")))
+				'((sequence "TODO" "WAIT" "|" "DONE" "CANC" )))
 	(setq org-clock-sound "~/.emacs.d/media/digital_alarm.wav")
 
 	(defun org-summary-todo (n-done n-not-done)
@@ -495,7 +499,7 @@
 	:straight t
 	:blackout t
   :custom
-  (company-idle-delay . 0.25) ;; how long to wait until popup
+  (company-idle-delay . 0.15) ;; how long to wait until popup
   ;; (company-begin-commands nil) ;; uncomment to disable popup
   (global-company-mode . t)
 	:config
@@ -618,7 +622,9 @@
 	:straight t
 	:after vertico
 	:config
-	(setq completion-styles '(orderless)))
+	(setq completion-styles '(orderless)
+				completion-category-defaults nil
+				completion-category-overrides '((file (styles partial-completion)))))
 
 (leaf htmlize
 	:straight t)
@@ -652,11 +658,11 @@
   :init
   (dired-async-mode 1))
 
-(leaf undo-tree
-	:straight t
-  :blackout undo-tree-mode
-	:config
-	(global-undo-tree-mode t))
+;; (leaf undo-tree
+;; 	:straight t
+;;   :blackout undo-tree-mode
+;; 	:config
+;; 	(global-undo-tree-mode t))
 
 (leaf magit
 	:straight t
